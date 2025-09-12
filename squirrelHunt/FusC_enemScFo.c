@@ -1,0 +1,1 @@
+/home/jepsuse/MSX/Fusion-C 2.0 SDK pre-beta 2b/WorkingFolder/learning-fusion-c-programs/enemScFo.c
