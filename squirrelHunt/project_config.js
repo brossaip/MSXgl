@@ -46,7 +46,7 @@ Emulator  = '/home/jepsuse/MSX/openMSX/derived/openmsx';
 ProjName = "squirrel";
 
 //-- List of project modules to build (array). If empty, ProjName will be added
-ProjModules = [ "enemScFo" ];
+ProjModules = [ "eneScFoCo" ];
 
 //-- Project segments base name (string). ProjName will be used if not defined
 // ProjSegments = ProjName;
@@ -55,7 +55,7 @@ ProjModules = [ "enemScFo" ];
 LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "dos", "string", "tool/reg" ];
 
 //-- Additional sources to be compiled and linked with the project (array)
-// AddSources = [];
+AddSources = [];
 
 //-- Target MSX machine version (string)
 //   - 1        MSX1
@@ -175,7 +175,7 @@ AppID = "T1";
 //*******************************************************************************
 
 //-- Force to generate MSXgl static library even if 'msxgl.lib' already exist (boolean)
-BuildLibrary = false;
+BuildLibrary = true;
 
 //-- Prepare program for debug (boolean)
 Debug = true;
@@ -313,7 +313,7 @@ Verbose = true;
 // EmulTurbo      = false;				//-- Start emulator in turbo mode (boolean)
 
 //-- Emulator extra parameters to be add to command-line (string). Emulator sotfware specific
-// EmulExtraParam = "";
+EmulExtraParam = "-ext moonsound";
 
 //-------------------------------------------------------------------------------
 // Extension options

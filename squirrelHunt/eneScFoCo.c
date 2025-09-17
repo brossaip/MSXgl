@@ -1,26 +1,4 @@
-/* Vull provar de fer el joc squirrel eat squirrel del pygame desenvolupat en el
-llibre "Making Games with Python & Pygame"
-En aquesta primera part només vull controlar que apareguin enemics a la zona
-fora del joc i que hi vagin entrant i després que es vagin movent amb l'scroll.
-El programa original té un mapa infinit, però nosaltres utilitzarem de moment el
-mateix que hem fet les proves de 64x64. A l'original hi ha una zona
-d'aproximitat que és on es creen els personatges. Nosaltres també la tindrem,
-però haurà de ser adaptativa per quan arribi als extrems. Tal i com comenten
-aquí
-https://stackoverflow.com/questions/17354905/sdcc-and-malloc-allocating-much-less-memory-than-is-available
-nosaltres no tindrem memòria dinàmica perquè no tenim un sistema operatiu
-multiprocés que comparteix la memòria. Ho executem en exclusivitat, per tant fem
-un nombre de concret de conills que vagin apareixent. Puc emmegatzemar 256
-patrons però visualitzar 32 sprites. Si els grossos  es formen per 4 sprites, ho
-he de tenir en compte. Però de moment comencem només visualitzant-os i movent un
-senzill 2024-04-15 Faré més senzill que els esquirols corrent pel mapa. També
-per començar a debugar aniria bé tenir-ne pocs, dos o quatre. Quan desapareguin
-de la càmera ja els borro de l'array. Quan els genero hauré de tenir en compte
-l'scroll per posar-los. Podran aparèixer als marges. Trauré un número del 0 al 3
-per si va a dalt, baix, dreta, esquerra i després un altre per la posició x,y
-segons el que hagi sortit
- */
-/* Ho he passat a MSXgl */
+/* Vull afegir ara el control de col·lisions entre el protagonista i els esquirols */
 
 #include "dos.h"
 #include "bios.h"
@@ -38,8 +16,6 @@ unsigned char map_tile_x; // Per indicar la rajola de dalt a l'esquerra. Potser 
 unsigned char map_tile_y;
 unsigned char x;
 unsigned char y;
-
-DOS_FCB g_File;
 
 typedef struct{
   char x; // Les posicions dins la càmera. S'inicialitzaran el primer cop que apareguin
@@ -172,7 +148,7 @@ typedef struct {
   char top;            // Index of the top element
 } Stack;
 
-Stack pila_plans_sprite;
+Stack pila_plans_sprite; // He d'investigar perquè s'utilitza el pla1 i es queda quiet sense que jo el pugui col·lisionar.
 
 void push(Stack *stack, char value) {
   stack->top++;
@@ -200,7 +176,26 @@ int rand_xor() {
   return (num_llarg_aleatori & 0x7fff);
 }
 
-// File name handling removed - MSXgl uses different file I/O
+DOS_FCB g_File;
+
+void FT_SetName(DOS_FCB *p_fcb, const char *p_name) // Escrivim el nom del fitxer tal i com l'espera el DOS a l'estructura FCB
+{
+  char i, j;
+  Mem_Set(0, p_fcb, sizeof(DOS_FCB));
+  for (i = 0; i < 11; i++) {
+    p_fcb->Name[i] = ' ';
+  }
+  for (i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++) {
+    p_fcb->Name[i] = p_name[i];
+  }
+  if (p_name[i] == '.') {
+    i++;
+    for (j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.');
+         j++) {
+      p_fcb->Name[8 + j] = p_name[i + j];
+    }
+  }
+}
 
 void FT_errorHandler(char n, char *name) // Gère les erreurs
 {
@@ -223,25 +218,6 @@ void FT_errorHandler(char n, char *name) // Gère les erreurs
       break; 
   }
   DOS_Exit0();
-}
-
-void FT_SetName(DOS_FCB *p_fcb, const char *p_name) // Escrivim el nom del fitxer tal i com l'espera el DOS a l'estructura FCB
-{
-  char i, j;
-  Mem_Set(0, p_fcb, sizeof(DOS_FCB));
-  for (i = 0; i < 11; i++) {
-    p_fcb->Name[i] = ' ';
-  }
-  for (i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++) {
-    p_fcb->Name[i] = p_name[i];
-  }
-  if (p_name[i] == '.') {
-    i++;
-    for (j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.');
-         j++) {
-      p_fcb->Name[8 + j] = p_name[i + j];
-    }
-  }
 }
 
 int FT_LoadSc5Image(char *file_name) {
@@ -268,8 +244,8 @@ int FT_LoadSc5Image(char *file_name) {
     dst += size;
   }
   DOS_CloseFCB(&g_File);
+  return 1;
 }
-
 int FT_LoadPalette(char *file_name, char *buffer) {
   u16 paleta[16];
   u8 paleta_flatten[48];
@@ -292,15 +268,18 @@ int FT_LoadPalette(char *file_name, char *buffer) {
   }
   DOS_CloseFCB(&g_File);
 
-  VDP_SetPalette(paleta)  ;
+  VDP_SetPalette(paleta);
   return 1;
 }
+
+// Remove FT_LoadPalette_MSXViewer as it's not used in this version
 
 /***** INTERRUPCIONS *****/
 __at 0xc000 char copsVsync;
 __at 0xc001 u8 debugar;
 char processar_moviment;
 char processar_esquirols;
+char collision_count;
 
 // V-blank interruption handler (called from the ISR)
 void VDP_InterruptHandler()
@@ -309,6 +288,7 @@ void VDP_InterruptHandler()
     processar_esquirols = 1;
     copsVsync++;
 }
+
 
 int stamp_x; // Les coordenades a on està la imatge del tile a transformar. Hauré de fer una funció i un lookup table
 int stamp_y; // Mantindran les coordenades a on està el tipus de tile
@@ -365,7 +345,7 @@ void init_pantalla_joc() {
   for (char k = 0; k < MAX_PLANS_SPRITE; k++) {
     pila_plans_sprite.data[k] = k + 1;
   }
-  pila_plans_sprite.top = MAX_PLANS_SPRITE-1;
+  pila_plans_sprite.top = MAX_PLANS_SPRITE - 1;
 
   // Creem tota l'estructura d'esquirols
   // Si hi ha massa esquirols al principi, puc fer aquest bucle fins a un número i la resta posar-los com a eliminar
@@ -382,20 +362,18 @@ void init_pantalla_joc() {
     } else if (pos_apareix == 2) {
       esquirols[k].y = rand_xor() & 211;
       esquirols[k].x = 0;
-    } else if (pos_apareix == 1) {
+    } else if (pos_apareix == 3) {  // Fixed: was pos_apareix == 1, should be 3
       esquirols[k].y = rand_xor() & 211;
       esquirols[k].x = 255;
     }
 
     esquirols[k].eliminar = 0;
-
     crea_velocitat_esquirols(k);
-   
     esquirols[k].pintar = 1;
-
     esquirols[k].num_pla_sprite = pop(&pila_plans_sprite);
-  }
 
+    collision_count = 100;
+  }
 }
 
 char pos_scroll_x;
@@ -613,20 +591,19 @@ char esParet_avall(char tile_esq, char tile_amunt){
 char esParet_dreta(char tile_esq, char tile_amunt){
   // Ajustem la posició per comprovar exactament on col·lisionarà
   int mov_casella_1 = (tile_esq) + map_tile_x +
-    NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y) +1;
-  // int mov_casella_2 =
-  //    (tile_esq) + map_tile_x + NOMBRE_RAJOLES_HOR * (tile_amunt +1 + map_tile_y);
-  // char valor = (es_casellaParet(mov_casella_1) || es_casellaParet(mov_casella_2) );
-  return(es_casellaParet(mov_casella_1));
-  // return (valor);
+    NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y);
+  int mov_casella_2 =
+      (tile_esq) + map_tile_x + NOMBRE_RAJOLES_HOR * (tile_amunt +1 + map_tile_y);
+  char valor = (es_casellaParet(mov_casella_1) || es_casellaParet(mov_casella_2) );
+  // return(es_casellaParet(mov_casella_1));
+  return (valor);
 }
 char esParet_esquerra(char tile_esq, char tile_amunt){
   int mov_casella_1 = (tile_esq - 1) + map_tile_x +
-    NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y)+1;
-  //int mov_casella_2 = (tile_esq - 1) + map_tile_x +
-  //  NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y + 1);
-  //return (es_casellaParet(mov_casella_1) || es_casellaParet(mov_casella_2) );
-  return(es_casellaParet(mov_casella_1));
+    NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y);
+  int mov_casella_2 = (tile_esq - 1) + map_tile_x +
+    NOMBRE_RAJOLES_HOR * (tile_amunt + map_tile_y + 1);
+  return (es_casellaParet(mov_casella_1) || es_casellaParet(mov_casella_2) );
 }
 
 void moviment_amunt(){
@@ -713,6 +690,48 @@ char esquirol_col_lisiona_amb_paret(int nova_x, int nova_y, char mov_num_esquiro
   return esParet;
 }
 
+char check_sprite_collision(char sprite1_x, char sprite1_y, char sprite2_x, char sprite2_y, char sprite_size) {
+  // Simple bounding box collision detection
+  // Returns 1 if collision detected, 0 otherwise
+  if (sprite1_x < sprite2_x + sprite_size &&
+      sprite1_x + sprite_size > sprite2_x &&
+      sprite1_y < sprite2_y + sprite_size &&
+      sprite1_y + sprite_size > sprite2_y) {
+    return 1;
+  }
+  return 0;
+}
+
+void update_main_character_color() {
+  // Change main character color based on collision count
+  char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13};
+  
+  switch (collision_count % 4) {
+    case 0:
+      // Original colors
+      colorSprites[0] = 1; colorSprites[1] = 9; colorSprites[2] = 10; colorSprites[3] = 1;
+      colorSprites[4] = 9; colorSprites[5] = 10; colorSprites[6] = 7; colorSprites[7] = 13;
+      break;
+    case 1:
+      // Red colors
+      colorSprites[0] = 6; colorSprites[1] = 8; colorSprites[2] = 9; colorSprites[3] = 6;
+      colorSprites[4] = 8; colorSprites[5] = 9; colorSprites[6] = 6; colorSprites[7] = 8;
+      break;
+    case 2:
+      // Green colors
+      colorSprites[0] = 3; colorSprites[1] = 11; colorSprites[2] = 12; colorSprites[3] = 3;
+      colorSprites[4] = 11; colorSprites[5] = 12; colorSprites[6] = 3; colorSprites[7] = 11;
+      break;
+    case 3:
+      // Blue colors
+      colorSprites[0] = 4; colorSprites[1] = 5; colorSprites[2] = 13; colorSprites[3] = 4;
+      colorSprites[4] = 5; colorSprites[5] = 13; colorSprites[6] = 4; colorSprites[7] = 5;
+      break;
+  }
+  
+  SetSpriteColors(0, colorSprites);
+}
+
 void actualitza_pos_esquirols() {
   for (char k=0; k < NUM_ESQUIROLS; k++) {
     // AQuí també he d'actualitzar el x i y de la càmera
@@ -747,16 +766,16 @@ void actualitza_pos_esquirols() {
       tile_esq_esquirol = ((esquirols[k].x) + (pos_scroll_x & 7)) >> 3;
       unsigned char esqu_y = esquirols[k].y - pos_scroll_y;
       tile_amunt_esquirol = ((esqu_y) + (pos_scroll_y & 7)) >> 3;
-      
+
       // Comprovem si està en una paret
-      casella_esquirol = tile_esq_esquirol + map_tile_x + 
-        NOMBRE_RAJOLES_HOR * (tile_amunt_esquirol + map_tile_y);
-      
+      casella_esquirol =
+          tile_esq_esquirol + map_tile_x +
+          NOMBRE_RAJOLES_HOR * (tile_amunt_esquirol + map_tile_y);
+
       if (es_casellaParet(casella_esquirol)) {
         // Si està en una paret, el marquem per recrear-lo
         esquirols[k].eliminar = 1;
-      }
-      else {
+      } else {
         esquirols[k].eliminar = 0;
         crea_velocitat_esquirols(k);
         esquirols[k].pintar = 1;
@@ -794,7 +813,22 @@ void actualitza_pos_esquirols() {
         esquirols[k].y += esquirols[k].speed_y;
       }
     }
+    
+    // Check collision with main character
+    if (esquirols[k].eliminar == 0 && esquirols[k].pintar == 1) {
+      if (check_sprite_collision(x, y + pos_scroll_y, esquirols[k].x, esquirols[k].y, 8)) {
+        collision_count++;
+        update_main_character_color();
+        
+        // Mark squirrel for elimination after collision
+        esquirols[k].eliminar = 1;
+        esquirols[k].pintar = 0;
+        push(&pila_plans_sprite, esquirols[k].num_pla_sprite);
+      }
+    }
+
     VDP_SetSprite(esquirols[k].num_pla_sprite, esquirols[k].x, esquirols[k].y, 1);
+
   }
 }
 
@@ -885,100 +919,9 @@ void main() {
   DOS_StringOutput("Pos sprite: ");
   // Note: DOS_StringOutput doesn't support formatted output like printf
   // You'll need to convert numbers to strings manually or use a different approach
-  String_Format(g_StrBuffer, "Cops Vsync %d\n\r", copsVsync);
+  String_Format(g_StrBuffer, "Collisions: %d\n\r", collision_count);
   DOS_StringOutput(g_StrBuffer);
   DOS_StringOutput("Debug info printed\n");
   Bios_Exit(0); // This changes depending on the target if it is a ROM
 }
-/* For debugging there is a module debug.h que permet fer prints a la consola. Funciona per openmsx i emulicious */
-/* 2024-04-22 Els sprites van molt ràpids, hauré de fer les animacions més lentes d'ells, no a cada pantalla com amb el protagonista.
-   A cops també agafen el color del protagonista, he de mirar la gestió del número de plans. Però només quan es mou, és estrany. 
-   Una altra cosa que he vist és que amb aquest plantejament, no els puc anar perseguint, ja que si creuen el límit de la pantalla tornen a aparèixer. Hauré de tenir les dimensions de la pantalla i un altre amb l'offset que serà la pantalla del joc a on apareixeran els enemics
-   No hi ha cap enemic que vagi de dreta a esquerra
-   Els enemics desapareguts també es queden a la pantalla
-*/
-/* 2024-04-28 Faltava fer el push. Ja l'he afegit. Ara ja no borra l'sprite del protagonista.
-   Falla l'scroll. A vegades el torna a posar diferent.
-   Els enemeics salten els obstacles. A la primera versió els farem senzills
-   Amb l'scroll avall, hi ha sprites que no arriben a final de tot
-*/
-/* 2024-05-08 Scroll arreglat, era problema de l'offset del càlcul. He agafat la correcció de scroll_fons.
- Tant el primer com el segon comencen en el mateix pla, el 0x1e, per això només es dibuixen 3. Arreglat, el top de la pila no era el correcte.
- L'scroll afecta la posició dels sprites. No està fet de forma correcte */
-/* 2024-05-20 He fet el programa sprscr_provant per veure si els sprites en scroll vertical desapareixen i no he vist cap comportament estrany. Van desapareixent en el límit de la pantalla. No sé perquè desapareixen en el enemScFo */
-/* 2024-08-10 continuant la nota del dia 2024-05-08, l'scroll afecta els sprites dels conills, quan l'usuari desplaça l'scroll, els sprites dels conills s'haurien de mantenir al tile que estaven abans de l'scroll, no a la pantalla com fa l'usuari. Ha de ser una lògica diferent. També es continua observant que quan tiro l'scroll avall, hi ha un punt a on desapareixen. Quan faig l'scroll també hauré de desplaçar els esquirols que estiguin visibles perquè mantinguin la mateixa casella. Primer investigar perquè desapareixen quan tiro avall l'scroll */
-/* 2024-08-13 Arreglat que l'esquirol desapareixi en l'eix vertical. Quan tombo cap a la dreta, no detecta que s'hagi d'eliminar el conill, sempre està funcionant. He de continuar debugant */
-/* 2025-04-19 després de molt de temps treballant amb la interrupció de línia, torno amb el tema dels sprites. Li he dit al aider-sonnet que arreglés el moviment lateral tal i com havia fet jo amb el vertical. I funciona. */
-/* 2025-04-23 He modificat perquè els esquirols detectin si és paret. Però a cops ho detecta i a cops no. He definit la variable debugar per començar a esbrinar què està passant */
-/* 2025-04-28 Crec que el que està passant és que no calcula bé la posició de les Y. Mirar en un mateix punt el valor de les coordenades de l'esquirol 0x7031 i 0x7030 i les del personatge principal 0x7014 i 0x7015
- !!! Quan els creo els esquirols també hauré de mirar que no estiguin a casellaParet !!!!*/
-/* He provat d'eliminar l'operació de restar scroll per tile_amunt_esquirol = nova_y >>3 i no ha funcionat */
-/* 2025-04-29 era problema de l'scroll. He posat més esquirols i queda xulo. Hi ha algunes col·lisions dels esquirols que es solapen i genera quan està en casella prohibida. També hi ha alguns rebots al límit de la pantalla que rebota en lloc de desaparèixer */
-/* 2025-05-05 He estat millorant les col·lisions, però a la part dreta no ho fa bé, ho fa un tile massa aviat. L'aider no ho ha pogut corregir */
-/* 2025-05-11 Per debugar aniré fent cada posició creant només un esquirol i controlant les seves velocitats */
-/* 2025-05-12 Em pensava que havia debut bé les col·lisions dels esquirols, però ara veig que amunt dreta la fa abans. Crec que la velocitat és 2.
-   També quan està amunt i rebota dreta primer obstacle dalt de tot esquerra pantalla inicial, quan retorna per creuar la pantalla, fa un rebot en lloc de retornar
-   Sembla que només sigui la part d'amunt que dongui col·lisió, no fa servir la de la dreta?? S'activa la col·lisió 4 que és la de l'esquerra¿?
-   Quan va cap a baix al final de tot, també col·lisiona amb rebot alguns. Són els que se'n va de l'array de tiles, el de <0 i >número_de_tiles
-*/
-/* 2025-05-19 He provat de posar aixó a es_casellaParet:   if (nombre_casella<0)
-  { return(0); } else if (nombre_casella>=sizeof(map1)) { return(0);
-  }
-  Però ho ha fet igual. A més quan és al principi que rebota, no estic a dalt de tot. Però potser en algun punt hi ha un valor negatiu que no estigui fent bé.
-*/
-/* 2025-05-22 He fet el càlcul i retorna uns valors del mapa que estan entre 0-3. Però què varia quan canvio l'scroll? tile_amunt i tile_esq es van reduint fins a 0 i després de cop prene el valor 0 esq 20 amunt. Tampoc haurien de ser 0-0 a la posició inicial ja que hi ha més tiles cap amunt. No sé si algun lloc fa la conversió als tiles totals del mapa o el tile_esquirol és el tile dins la pantalla i no dins el mapa
-   Pot ser que el tile_amunt esquirol amb el pos_scroll_y negatiu no el faci bé i per això dóna el 0x20
-   He comprovat de fer els passos del tile per separat i ho fa bé. He de mirar quina és la diferència en codi compilat
-   Aquí hi ha els codis de diferència:
-                                      7590 ;learning-fusion-c-programs/enemScFo.c:811: esquirol_y = nova_y - pos_scroll_y;
-      0022DD DD 7E 06         [19] 7591 	ld	a, 6 (ix)
-      0022E0 21 06 70         [10] 7592 	ld	hl, #_pos_scroll_y
-      0022E3 4E               [ 7] 7593 	ld	c, (hl)
-      0022E4 21 F9 6F         [10] 7594 	ld	hl, #_esquirol_y
-      0022E7 91               [ 4] 7595 	sub	a, c
-      0022E8 77               [ 7] 7596 	ld	(hl), a
-                                   7597 ;learning-fusion-c-programs/enemScFo.c:813: pos_scr_deb = pos_scroll_x & 7;
-      0022E9 3Ar7Cr0A         [13] 7598 	ld	a,(#_pos_scroll_x + 0)
-      0022EC E6 07            [ 7] 7599 	and	a, #0x07
-      0022EE 32 F0 6F         [13] 7600 	ld	(_pos_scr_deb+0), a
-                                   7601 ;learning-fusion-c-programs/enemScFo.c:814: suma_deb = esquirol_y + pos_scr_deb;
-      0022F1 21 F0 6F         [10] 7602 	ld	hl, #_pos_scr_deb
-      0022F4 3A F9 6F         [13] 7603 	ld	a,(#_esquirol_y + 0)
-      0022F7 86               [ 7] 7604 	add	a, (hl)
-      0022F8 32 F1 6F         [13] 7605 	ld	(_suma_deb+0), a
-                                   7606 ;learning-fusion-c-programs/enemScFo.c:815: desplac3 = suma_deb >> 3;
-      0022FB 3A F1 6F         [13] 7607 	ld	a,(#_suma_deb + 0)
-      0022FE 0F               [ 4] 7608 	rrca
-      0022FF 0F               [ 4] 7609 	rrca
-      002300 0F               [ 4] 7610 	rrca
-      002301 E6 1F            [ 7] 7611 	and	a, #0x1f
-      002303 32 F2 6F         [13] 7612 	ld	(_desplac3+0), a
-                                   7613 ;learning-fusion-c-programs/enemScFo.c:816: tile_amunt_esquirol = ((esquirol_y) + (pos_scroll_y & 7)) >> 3;
-      002306 3A F9 6F         [13] 7614 	ld	a, (#_esquirol_y + 0)
-      002309 4F               [ 4] 7615 	ld	c, a
-      00230A 06 00            [ 7] 7616 	ld	b, #0x00
-      00230C 3A 06 70         [13] 7617 	ld	a,(#_pos_scroll_y + 0)
-      00230F E6 07            [ 7] 7618 	and	a, #0x07
-      002311 6F               [ 4] 7619 	ld	l, a
-      002312 26 00            [ 7] 7620 	ld	h, #0x00
-      002314 09               [11] 7621 	add	hl, bc
-      002315 06 03            [ 7] 7622 	ld	b, #0x03
-      002317                       7623 00167$:
-      002317 CB 2C            [ 8] 7624 	sra	h
-      002319 CB 1D            [ 8] 7625 	rr	l
-      00231B 10 FA            [13] 7626 	djnz	00167$
-      00231D 7D               [ 4] 7627 	ld	a, l
-      00231E 32 02 70         [13] 7628 	ld	(#_tile_amunt_esquirol), a
 
-      Segons l'explicació del Claud:
- *The sra instruction in the second method preserves the sign bit (mostsignificant bit) during shifts, making it a true arithmetic right shift. The rrca in the first method is a circular rotation that doesn't preserve sign.
- Sembla que faci per enters en lloc de chars i per això usa el sra en comptes de rrca
- */
-/* 2025-05-27 els rebots els fa bé, però s'hauria de mirar que a cops la generació no surt dels extrems */
-/* 2025-05-31 He mirat un cas que apareixia més tard, però estava ben generat, és possible que fos pels altres sprites i la prioritat, ja que estaven visibles a prop d'aquella línia. L'esquirol tenia totes les propietats bé, però només apareixia més tard. He de mirar més casos a veure si això és veritat. No he sapigut trobar més casos per tant entenc que és degut a això */
-/* 2025-08-30 He començat el port del fitxer a MSXgl */
-/* 2025-09-03 L'sprite principal no es mou. Mirar si executa vSync i entra a la interrupció */
-/* 2025-09-11 Sense fer res l'sprite ha començat a moure's, potser no estava executant la versió correcta. Ara quan detecta les col·lisions ho fa abans. He fet un diff i està igual que el Fusion-C. No apareix canvis. Vaig a modificar el detecta col·lisions
-   l'scroll horitzontal ensenya tota la part de l'esquerra. S'ha d'inicialitzar el registre de forma correcta. Fet
- Ara quan pinta a la dreta, es veu com està dibuixant. També s'ha de corregir. Potser és perquè MSXgl no té waits i s'ha d'esperar que acabi la comanda*/
-/* 2025-09-14 La columna que es veiés a la dreta era problema de la càmera. He fet un offset en el VDP_setHOrizontalOffset() de -4 i ja no es veu com es van copiant els blocs. Però he de tornar a canviar les col·lisions. Potser puc tornar al que ja tenia. Utilitzaré la funció del Fusion-C per no haver de recalcular tots els offsets. Entre les dues funcions, la del MSXgl i setScrollH del fusion-C calculen diferent la posició inicial. A veure com es posa un .s al projecte */
