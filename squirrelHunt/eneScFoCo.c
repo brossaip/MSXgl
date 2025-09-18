@@ -704,7 +704,8 @@ char check_sprite_collision(char sprite1_x, char sprite1_y, char sprite2_x, char
 
 void update_main_character_color() {
   // Change main character color based on collision count
-  char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13};
+  // En MSXgl l'array és de 16 encara que sigui de 8x8  
+  char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13, 3,3,3,3, 3,3,3,3};
   
   switch (collision_count % 4) {
     case 0:
@@ -728,8 +729,8 @@ void update_main_character_color() {
       colorSprites[4] = 5; colorSprites[5] = 13; colorSprites[6] = 4; colorSprites[7] = 5;
       break;
   }
-  
-  SetSpriteColors(0, colorSprites);
+
+  VDP_SetSpriteMultiColor(0, colorSprites);
 }
 
 void actualitza_pos_esquirols() {
