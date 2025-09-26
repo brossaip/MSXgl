@@ -1,0 +1,298 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configure listings for code blocks
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\title{MSXgl: Guia d'Introducció i Migració}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Què és MSXgl?}
+
+MSXgl és una llibreria ideada per a crear videojocs utilitzant el desenvolupament creuat en C amb el compilador sdcc. La part gl del nom es tradueix com a game library (llibreria de joc). El seu creador és l'aoineko i la va publicar al github al març del 2023. La pàgina web és de l'octubre del 2022. Des d'aleshores que segueix millorant-la i ampliant-la.
+
+\section{Instal·lació}
+
+Per instal·lar el MSXgl només cal accedir al github del projecte i copiar el repositori en el nostre directori de treball. Els nostres projectes han d'anar a un directori que anomenarem com volguem dins de \texttt{MSXgl/projects}. En aquest directori ja tenim diferents carpetes que són:
+
+\begin{itemize}
+    \item \textbf{example}: hi trobem un exemple d'un joc per a dos jugadors que s'han de passar una pilota
+    \item \textbf{samples}: són tot de petites aplicacions que proven una cosa diferent: la música, els sprites, els colors, etc. Per compilar-los només cal executar build i el nom
+    \item \textbf{targets}: Mostra informació sobre la distribució de la memòria del MSX pels diferents formats dels mappers del MSXgl
+    \item \textbf{template}: seria el hello world però mostra text en screen 2. Serveix per tenir com a esquelet dels nous projectes que vagis creant
+    \item \textbf{template\_msx2}: el mateix que l'anterior però ara per a MSX2 utilitzant screen 5
+\end{itemize}
+
+
+
+Per comprovar que la instal·lació funciona, només cal que ens col·loquem dins el directori \textit{example} i executem \texttt{build.sh} si estem en Linux/Mac o \texttt{build.bat} si estem utilitzant Windows. El fitxer creat, si utilitzem la configuració per defecte, va a parar a \texttt{./out/nom.rom} on trobem el fitxer rom generat i que el podrem executar amb l'openMSX com:
+
+\begin{lstlisting}[language=bash]
+openmsx -machine Panasonic_FS-A1ST out/example.rom
+\end{lstlisting}
+
+On veurem dos bonics pingüins que han de passar la pilota d'un costat a l'altre sense que surti de la pantalla.
+
+En aquest mateix directori també tindrem tots els fitxers generats per l'sdcc.
+
+\section{Configuració}
+
+Hi ha dos fitxers principals de configuració, el \textit{project\_config.js} que conté aspectes relatius a la forma de compilar el projecte, el que seria el \textit{makefile} en altres projectes:
+
+
+
+
+
+Generació del binari final en diferents formats (ROM, BIN, COM…).
+
+
+
+Configuració de la màquina objectiu (MSX1, MSX2, 2+, Turbo-R…).
+
+
+
+Opcions d’optimització i depuració per ajustar velocitat, mida o mode debug.
+
+
+
+Gestió d’arxius addicionals (fitxers binaris, imatges de disc).
+
+
+
+Execució automàtica en emulador amb possibilitat d’afegir extensions (SCC, MSX-Music, OPL4, V9990…).
+
+
+
+El MSXgl té un disseny modular, pensat perquè cada projecte pugui activar només les parts de la llibreria que necessita.Això permet obtenir programes més lleugers, tant en temps d’execució com en consum de memòria.
+
+Tots aquests mòduls es configuren al fitxer msxgl\_config.h, on podem definir:
+
+
+
+
+
+Objectiu i màquina: Selecció del format de programa (ROM, BIN, COM, MegaROM…) i la versió de MSX (MSX1, MSX2, Turbo R, etc.).
+
+
+
+BIOS i VDP: Definir com accedir a les rutines de BIOS (directe o interslot).Configurar el xip de vídeo (VDP): modes de pantalla permesos, ús de sprites, comandes, paletes, protecció ISR…
+
+
+
+Mòduls addicionals:
+
+
+
+
+
+Input: teclat, joystick, ratolí, paddle, proteccions ISR.
+
+
+
+Memòria: funcions ràpides de memcpy/set, gestió dinàmica, validacions.
+
+
+
+MSX-DOS: suport per fitxers amb FCB, handles i utilitats.
+
+
+
+Rellotge RTC: data/hora, dades en CMOS, validació.
+
+
+
+Print i Text: fonts de text, bitmap, VRAM, sprites, efectes (ombra, outline), printf.
+
+
+
+Sprites FX: flip, crop, màscara, rotació.
+
+
+
+Game framework: estat del joc, bucle principal, vsync.
+
+
+
+GamePawn: físics, col·lisions, tilemap, límits de pantalla.
+
+
+
+Menus: definició d’interfícies de menú amb callbacks.
+
+
+
+Scroll i Tilemap: scrolling horitzontal/vertical, ajust per píxel, màscares amb sprites.
+
+
+
+Audio: PSG, SCC, MSX-Music, MSX-Audio, replayers (PT3, TriloTracker, WYZ, VGM, LVGM, PCM…).
+
+
+
+Compressió: suport per RLEp, Pletter, Bitbuster, ZX0, LZ48, MSXi.
+
+
+
+Altres: NinjaTap, PAC (save SRAM), generació de QR Codes, mòdul de cadenes i sprintf, matemàtiques i random.
+
+
+
+Debug i Perfilat: Opcions per activar debugging amb Emulicious o openMSX i perfilar rendiment.
+
+
+
+El primer cop que veus tantes opcions, quedes desbordat. Però no cal tenir por a l’hora de provar la llibreria: la plantilla inicial ja compila correctament un projecte genèric i pots començar a treballar-hi de seguida. Els detalls de configuració són per més endavant, quan coneguis millor la llibreria o vulguis activar algun mòdul concret (que també trobaràs a la secció d’exemples). És com un sistema operatiu acabat d’instal·lar: pots fer-lo servir des del primer moment, i només quan ho necessites ajustes les opcions avançades.
+
+
+
+\section{Moviment de tiles i sprites de Fusion-C a MSXgl}
+
+Fins ara només hem presentat el que és la MSXgl, mirem-ho d'aplicar a un cas pràctic. Teníem la nostra aplicació que llegia del disquet unes imatges per crear uns patrons i teníem el personatge principal i uns enemics que es movien per la pantalla. El personatge principal feia scroll de la pantalla principal quan arribava als marges. Quines modificacions cal fer perquè funcioni per a MSXgl?
+
+\subsection{Configuració msxgl\_config.h}
+
+Aquestes són les línies que s'han modificat:
+
+\begin{lstlisting}[language=C]
+#define VDP_UNIT    VDP_UNIT_U8 
+\end{lstlisting}
+Els scrolls i les pantalles són de 256, no necessitem els X16
+
+\begin{lstlisting}[language=C]
+#define VDP_USE_MODE_G3 FALSE   // MSX2     Screen 4
+#define VDP_USE_MODE_G4 TRUE    // MSX2     Screen 5
+#define VDP_USE_MODE_G5 FALSE   // MSX2     Screen 6
+#define VDP_USE_MODE_G6 FALSE   // MSX2     Screen 7
+\end{lstlisting}
+Activem només l'screen 5
+
+\begin{lstlisting}[language=C]
+#define VDP_USE_PALETTE16 TRUE  // Use 16 entries palette (use only 15 entries otherwise)
+\end{lstlisting}
+La MSXgl defineix el color 0 com a transparent. Fins ara no havíem seguit cap tipus de norma per definir el color transparent. Per això diem que les nostres entrades seran de 16 colors.
+
+\begin{lstlisting}[language=C]
+#define PRINT_USE_VRAM  FALSE       // Allow use of VRAM stored font (G4-G7)
+#define PRINT_USE_SPRITE  FALSE     // Allow use of Sprite font (G3-G7)
+#define PRINT_USE_FX_SHADOW  FALSE  // [Bitmap] Allow use of text shadow
+#define PRINT_USE_FX_OUTLINE FALSE  // [Bitmap] Allow use of text outline
+\end{lstlisting}
+No utilitzem el mòdul Print de la MSXgl que permet escriure diferents caràcters en diferents screens del MSX usant memòria VRAM o sprites. Podria eliminar més, però només vaig tocar aquestes que afectaven la VRAM que sí que utilitzem per anar fent els tiles.
+
+No utilitzem ni el mòdul del scroll ni el del GamePawn de moment, ja que aquesta part ja l'havíem feta amb les nostres funcions.
+
+
+
+\subsection{Configuració project\_config.js}
+
+El fitxer per determinar com compilar i enllaçar el projecte ha estat modificat a les següents línies:
+
+\begin{lstlisting}[language=Java]
+DoRun = true;
+\end{lstlisting}
+Quan acabi la compilació correrà l'emulador escollit amb la ROM o la DSK obtinguda de la compilació
+
+\begin{lstlisting}[language=Java]
+Emulator = '/home/jepsuse/MSX/openMSX/derived/openmsx';
+\end{lstlisting}
+El camí on el sistema operatiu pot trobar l'aplicació de l'emulador
+
+\begin{lstlisting}[language=Java]
+ProjName = "squirrel";
+\end{lstlisting}
+El nom que li donem al projecte. De moment no he descobert que influenciï en cap altre procés del projecte
+
+\begin{lstlisting}[language=Java]
+ProjModules = [ "eneScFoCo" ];
+\end{lstlisting}
+El nom dels diferents fitxers C a compilar
+
+\begin{lstlisting}[language=Java]
+LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "dos", "string", "tool/reg" ];
+\end{lstlisting}
+Els mòduls de la llibreria que utilitzarem
+
+\begin{lstlisting}[language=Java]
+Machine = "TR"; 
+EmulMachine = false;
+EmulExtraParam = "-machine Panasonic_FS-A1ST -ext moonsound";
+\end{lstlisting}
+El nom de la màquina que utilitzem per la compilació i que també es fa servir per a l'emulador. La MSXgl assumeix que l'openMSX és sense ROMs, només utilitza la C-Bios i serveix només per a carregar aplicacions .rom. Com que nosaltres volem compilar per a DOS i per a Turbo-R, hem d'afegir que \texttt{EmulMachine = false}, si no farà la comprovació i veurà que l'openMSX no té Turbo-R i no arrencarà l'emulador. També hem de posar que es tracta d'un Turbo-R, per això especifiquem el model en \texttt{EmulExtraParam}. Si hi volguéssim posar més accessoris, també ho faríem aquí, com posant el moonsound a l'exemple.
+
+\begin{lstlisting}[language=Java]
+Target = "DOS2";
+\end{lstlisting}
+El tipus d'executable que obtindrem en finalitzar la compilació, en aquest cas un DSK.
+
+\begin{lstlisting}[language=Java]
+DiskFiles = ['./content/img/PatCit.sc5', './content/img/PatCit.pl5'];
+\end{lstlisting}
+Altres fitxers extres que es vulguin adjuntar al DSK creat. En el nostre cas les imatges dels patrons que utilitzem per crear el fons.
+
+\begin{lstlisting}[language=Java]
+DiskSize = "720K";
+\end{lstlisting}
+El tamany del dsk final, 720K, que és la màxima capacitat que pot llegir el Turbo-R
+
+\begin{lstlisting}[language=Java]
+DOSParseArg = false;
+\end{lstlisting}
+En cas que volguéssim utilitzar l'aplicació amb paràmetres dins del MSX-DOS.
+
+\begin{lstlisting}[language=Java]
+Debug = true;
+\end{lstlisting}
+En el cas que necessitem debugar activem aquesta opció.
+
+\begin{lstlisting}[language=Java]
+DebugSymbols = true;
+\end{lstlisting}
+Si volem que es guardin els fitxers de símbols al directori amb els altres fitxers de sortida. Aquests fitxers són els que contenen la informació de cada línia de C traduïda a ensamblador.
+
+\begin{lstlisting}[language=Java]
+CompileSkipOld = false;
+\end{lstlisting}
+Si està en false, cada cop que compili, compilarà igualment tota la llibreria, si posem que sigui true, només la compilarà quan hi hagi una data més moderna a alguna dels fitxers per obtenir la llibreria. Hem de tenir en compte que si modifiquem una part de la configuració, com els 16 colors de la paleta, hem de tornar a posar aquest paràmetre a false per tornar a compilar la llibreria, altrament pot donar errors. Ara bé, si l'únic que estem fent són modificacions al fitxer en .C, podem estalviar temps i energia i saltar-nos la compilació de la llibreria cada vegada, ja que serà sempre el mateix resultat.
+
+
+
+\subsection{Traducció de funcions de l'aplicació}
+
+Anem a traduir l'aplicació que teníem al gitlab de Fusion-C, \texttt{enScFoCo.c}, a les funcions de MSXgl.
+
+El primer que hem de canviar són els includes:
+
+\textbf{Abans (Fusion-C):}
+\begin{lstlisting}[language=C]
+#include "../fusion-c/include/msx_fusion.h"
+#include "../fusion-c/include/vdp_graph2.h"
+#include "../fusion-c/include/vdp_sprites.h"
+#include <stdio.h>
+#include <string.h>
+\end{lstlisting}
+
+\textbf{Després (MSXgl):}
+\begin{lstlisting}[language=C]
+#include "dos.h"
+#include "bios.h"
+#include "msxgl.h"
+#include "string.h"
+#include "tool/reg.h"
+\end{lstlisting}
+
+
+\end{document}
