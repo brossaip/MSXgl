@@ -210,7 +210,7 @@ DebugSymbols = true;
 // CompileOpt = "";
 
 //-- Skip file if compile data (REL) is newer than the source code (boolean)
-CompileSkipOld = true;
+CompileSkipOld = false;  // Per exemple, en passar a 16 colors no ho havia agafat bé.
 
 //-- Additionnal link options (string)
 // LinkOpt = "";
@@ -305,7 +305,7 @@ Verbose = true;
 //-------------------------------------------------------------------------------
 // General options
 
-// EmulMachine    = true;				//-- Force the MSX version of the emulated machine (boolean)
+EmulMachine    = false;				//-- Force the MSX version of the emulated machine (boolean)
 // Emul60Hz       = false;				//-- Force the emulated machine to be at 60 Hz (boolean)
 // EmulFullScreen = false;				//-- Force the emulator to start in fullscreen mode (boolean)
 // EmulMute       = false;				//-- Disable emulator sound (boolean)
@@ -313,7 +313,7 @@ Verbose = true;
 // EmulTurbo      = false;				//-- Start emulator in turbo mode (boolean)
 
 //-- Emulator extra parameters to be add to command-line (string). Emulator sotfware specific
-EmulExtraParam = "-ext moonsound";
+EmulExtraParam = "-machine Panasonic_FS-A1ST -ext moonsound";
 
 //-------------------------------------------------------------------------------
 // Extension options

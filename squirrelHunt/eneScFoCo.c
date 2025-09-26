@@ -11,7 +11,7 @@ extern void SetScrollH(u8 value);
 
 // File handling will be done differently in MSXgl
 
-u8 g_StrBuffer[128];
+u8 g_StrBuffer[128]; // És la quantitat que llegeix cada vegada el MSXDOS
 unsigned char map_tile_x; // Per indicar la rajola de dalt a l'esquerra. Potser es pot fusionar amb tile_esq. No es pot fusionar, ja que tile_esq és la posició actual del personatge
 unsigned char map_tile_y;
 unsigned char x;
@@ -246,7 +246,7 @@ int FT_LoadSc5Image(char *file_name) {
   DOS_CloseFCB(&g_File);
   return 1;
 }
-int FT_LoadPalette(char *file_name, char *buffer) {
+int FT_LoadPalette(char *file_name) {
   u16 paleta[16];
   u8 paleta_flatten[48];
 
@@ -259,12 +259,13 @@ int FT_LoadPalette(char *file_name, char *buffer) {
   DOS_SetTransferAddr(g_StrBuffer);
   DOS_SequentialReadFCB(&g_File);
 
+  // La paleta té el format // Format : [00000|G:3] [0|R:3|0|B:3]
   for (u8 k = 0; k < 24; k++) {
-    paleta_flatten[2 * k] = buffer[k+7] >> 4 & 0x07;
-    paleta_flatten[2 * k + 1] = buffer[k+7] & 0x07;
+    paleta_flatten[2 * k] = g_StrBuffer[k+7] >> 4 & 0x07;
+    paleta_flatten[2 * k + 1] = g_StrBuffer[k+7] & 0x07;
   }
   for (int k = 0; k < 16; k++) {
-    paleta[k] = RGB16( paleta_flatten[3*k], paleta_flatten[3*k+1], paleta_flatten[3*k+2]);    
+    paleta[k] = RGB16( paleta_flatten[3*k], paleta_flatten[3*k+1], paleta_flatten[3*k+2]);  // És correcte, només el problema de que el 0 és el transparent i jo no ho utilitzo i s'ha de configurar per 16 colors
   }
   DOS_CloseFCB(&g_File);
 
@@ -272,7 +273,6 @@ int FT_LoadPalette(char *file_name, char *buffer) {
   return 1;
 }
 
-// Remove FT_LoadPalette_MSXViewer as it's not used in this version
 
 /***** INTERRUPCIONS *****/
 __at 0xc000 char copsVsync;
@@ -319,7 +319,7 @@ void crea_velocitat_esquirols(char num_esquirol) {
 void init_pantalla_joc() {
   // Carreguem la imatge dels patrons
   FT_LoadSc5Image("PatCit.sc5"); // Carreguem la imatge
-  FT_LoadPalette("PatCit.pl5", g_StrBuffer);
+  FT_LoadPalette("PatCit.pl5");
 
   // Fem un escombrat del mapa per pintar cada patró
   // Ara el mapa del joc és més gran que la pantalla. He d'escombrar diferent
@@ -337,7 +337,7 @@ void init_pantalla_joc() {
   VDP_LoadSpritePattern(sprite, 0, 1);
   VDP_LoadSpritePattern(esquirol, 1, 1);
   // Resetegem la resta d'sprites, estaven tots a la línia 217 quan s'inicialitzava l'aplicació
-  for(int k=2; k<32; k++){
+  for(int k=1; k<32; k++){
     VDP_SetSpritePosition(k, 255, 255);
   }
 
@@ -926,3 +926,4 @@ void main() {
   Bios_Exit(0); // This changes depending on the target if it is a ROM
 }
 
+/* 2025-09-18 Els colors estan bé, l'únic que no he especificat 16 i el color 0 del Fusion comença a l'1. Es pot configurar amb config.h. He vist que l'sprite 1 es crea igual que el personatge. He de revisar el codi. Era a la inicialització. Faré investigació dels prints per poder donar més informació a l'article del MSXgl */
