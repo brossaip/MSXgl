@@ -468,6 +468,7 @@
         /* Caixa general semblant a tcolorbox */
         .code-explain-box {
             display: flex;
+            align-items: center;
             /* distribució horitzontal */
             gap: 1rem;
             /* espai entre codi i text */
@@ -507,6 +508,50 @@
             .code-explain-box {
                 flex-direction: column;
             }
+        }
+
+        /* Caixes de comparació de codi */
+        .code-comparison {
+            margin: 1.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .fusion-c-box {
+            background-color: #e6f3ff;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .fusion-c-box h4 {
+            margin: 0 0 0.5rem 0;
+            color: #0066cc;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .msxgl-box {
+            background-color: #e6ffe6;
+            padding: 1rem;
+        }
+
+        .msxgl-box h4 {
+            margin: 0 0 0.5rem 0;
+            color: #006600;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .code-comparison pre {
+            margin: 0;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
+        .code-comparison code {
+            background: transparent;
         }
     </style>
 </head>
@@ -749,7 +794,7 @@
         </div>
     </div>
     <p>Dels mòduls restants, no utilitzem ni el mòdul del scroll ni el del GamePawn de moment, ja
-        que aquesta part ja l’havíem feta amb les nostres funcions.</p>
+        que aquesta part ja l’havíem feta amb les nostres funcions. Hi ha moltes més opcions per acabar d'optimitzar la llibreria, però de moment amb aquestes ja funciona l'aplicació que volem portar. Però no dubteu en provar altres configuracions i comprovar el resultat.</p>
 
     <h2 id="configuració-project_config.js">Configuració <em>project_config.js</em></h2>
     <p>El fitxer per determinar com compilar i enllaçar el projecte ha estat
@@ -764,19 +809,31 @@
     </div>
     <p>El camí on el sistema operatiu pot trobar l’aplicació de
         l’emulador</p>
-    <div class="sourceCode" id="cb10" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ProjName <span class="op">=</span> <span class="st">&quot;squirrel&quot;</span><span class="op">;</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">ProjName = "squirrel";</code></pre>
+        </div>
+        <div class="explanation">
+            <p>El nom que li donem al projecte. De moment no he descobert que
+                influenciï en cap altre procés del projecte</p>
+        </div>
     </div>
-    <p>El nom que li donem al projecte. De moment no he descobert que
-        influenciï en cap altre procés del projecte</p>
-    <div class="sourceCode" id="cb11" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ProjModules <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;eneScFoCo&quot;</span> <span class="op">];</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">ProjModules = [ "eneScFoCo" ];</code></pre>
+        </div>
+        <div class="explanation">
+            <p>El nom dels diferents fitxers C a compilar</p>
+        </div>
     </div>
-    <p>El nom dels diferents fitxers C a compilar</p>
-    <div class="sourceCode" id="cb12" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>LibModules <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;system&quot;</span><span class="op">,</span> <span class="st">&quot;bios&quot;</span><span class="op">,</span> <span class="st">&quot;vdp&quot;</span><span class="op">,</span> <span class="st">&quot;print&quot;</span><span class="op">,</span> <span class="st">&quot;input&quot;</span><span class="op">,</span> <span class="st">&quot;memory&quot;</span><span class="op">,</span> <span class="st">&quot;dos&quot;</span><span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;tool/reg&quot;</span> <span class="op">];</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "dos", "string", "tool/reg" ];</code></pre>
+        </div>
+        <div class="explanation">
+            <p>Els mòduls de la llibreria que utilitzarem</p>
+        </div>
     </div>
-    <p>Els mòduls de la llibreria que utilitzarem</p>
     <div class="sourceCode" id="cb13" data-language="Java">
         <pre class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Machine <span class="op">=</span> <span class="st">&quot;TR&quot;</span><span class="op">;</span> </span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>EmulMachine <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
@@ -797,31 +854,47 @@
     </div>
     <p>El tipus d’executable que obtindrem en finalitzar la compilació, en
         aquest cas un DSK.</p>
-    <div class="sourceCode" id="cb15" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>DiskFiles <span class="op">=</span> <span class="op">[</span><span class="er">&#39;</span><span class="op">./</span>content<span class="op">/</span>img<span class="op">/</span>PatCit<span class="op">.</span><span class="fu">sc5</span><span class="er">&#39;</span><span class="op">,</span> <span class="er">&#39;</span><span class="op">./</span>content<span class="op">/</span>img<span class="op">/</span>PatCit<span class="op">.</span><span class="fu">pl5</span><span class="er">&#39;</span><span class="op">];</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">DiskFiles = ['./content/img/PatCit.sc5', './content/img/PatCit.pl5'];</code></pre>
+        </div>
+        <div class="explanation">
+            <p>Altres fitxers extres que es vulguin adjuntar al DSK creat. En el
+                nostre cas les imatges dels patrons que utilitzem per crear el fons.</p>
+        </div>
     </div>
-    <p>Altres fitxers extres que es vulguin adjuntar al DSK creat. En el
-        nostre cas les imatges dels patrons que utilitzem per crear el fons.</p>
-    <div class="sourceCode" id="cb16" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>DiskSize <span class="op">=</span> <span class="st">&quot;720K&quot;</span><span class="op">;</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">DiskSize = "720K";</code></pre>
+        </div>
+        <div class="explanation">
+            <p>El tamany del dsk final, 720K, que és la màxima capacitat que pot
+                llegir el Turbo-R</p>
+        </div>
     </div>
-    <p>El tamany del dsk final, 720K, que és la màxima capacitat que pot
-        llegir el Turbo-R</p>
     <div class="sourceCode" id="cb17" data-language="Java">
         <pre class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>DOSParseArg <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre>
     </div>
     <p>En cas que volguéssim utilitzar l’aplicació amb paràmetres dins del
         MSX-DOS.</p>
-    <div class="sourceCode" id="cb18" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Debug <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">Debug = true;</code></pre>
+        </div>
+        <div class="explanation">
+            <p>En el cas que necessitem debugar activem aquesta opció.</p>
+        </div>
     </div>
-    <p>En el cas que necessitem debugar activem aquesta opció.</p>
-    <div class="sourceCode" id="cb19" data-language="Java">
-        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DebugSymbols <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-javascript">DebugSymbols = true;</code></pre>
+        </div>
+        <div class="explanation">
+            <p>Si volem que es guardin els fitxers de símbols al directori amb els
+                altres fitxers de sortida. Aquests fitxers són els que contenen la
+                informació de cada línia de C traduïda a ensamblador.</p>
+        </div>
     </div>
-    <p>Si volem que es guardin els fitxers de símbols al directori amb els
-        altres fitxers de sortida. Aquests fitxers són els que contenen la
-        informació de cada línia de C traduïda a ensamblador.</p>
     <div class="sourceCode" id="cb20" data-language="Java">
         <pre class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>CompileSkipOld <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre>
     </div>
@@ -840,21 +913,489 @@
         <code>enScFoCo.c</code>, a les funcions de MSXgl.
     </p>
     <p>El primer que hem de canviar són els includes:</p>
-    <p><strong>Abans (Fusion-C):</strong></p>
-    <div class="sourceCode" id="cb21" data-language="C">
-        <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/msx_fusion.h&quot;</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_graph2.h&quot;</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_sprites.h&quot;</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span></code></pre>
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <div class="sourceCode" data-language="C">
+                <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/msx_fusion.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_graph2.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_sprites.h&quot;</span>
+<span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span>
+<span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></code></pre>
+            </div>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <div class="sourceCode" data-language="C">
+                <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span class="pp">#include </span><span class="im">&quot;dos.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;bios.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;msxgl.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;string.h&quot;</span>
+<span class="pp">#include </span><span class="im">&quot;tool/reg.h&quot;</span></code></pre>
+            </div>
+        </div>
     </div>
-    <p><strong>Després (MSXgl):</strong></p>
-    <div class="sourceCode" id="cb22" data-language="C">
-        <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;dos.h&quot;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;bios.h&quot;</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;msxgl.h&quot;</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;string.h&quot;</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;tool/reg.h&quot;</span></span></code></pre>
+
+    <h3>Canvis en les variables globals</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">static FCB file;
+#define BUFFER_SIZE_SC5 2560
+unsigned char LDbuffer[BUFFER_SIZE_SC5];
+char mypalette[16 * 4];</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">// External assembly function declaration
+extern void SetScrollH(u8 value);
+
+// File handling will be done differently in MSXgl
+u8 g_StrBuffer[128]; // És la quantitat que llegeix cada vegada el MSXDOS</code></pre>
+            <p><em>En MSXgl no necessitem buffers grans per carregar imatges senceres. El sistema de fitxers funciona diferent i llegim en blocs de 128 bytes.</em></p>
+        </div>
+    </div>
+
+    <h3>Eliminació de variables amb posicions fixes de memòria</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">__at 0xc020 struct_esquirol esquirols[NUM_ESQUIROLS];
+__at 0xc000 Stack pila_plans_sprite;</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">struct_esquirol esquirols[NUM_ESQUIROLS];
+Stack pila_plans_sprite;</code></pre>
+            <p><em>MSXgl gestiona millor la memòria automàticament, no cal especificar posicions fixes amb __at.</em></p>
+        </div>
+    </div>
+
+    <h3>Inicialització del generador de números aleatoris</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">num_llarg_aleatori = (_Time << 15) | (unsigned long)_Time;</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">// Use BIOS jiffy counter for random seed
+num_llarg_aleatori = (g_JIFFY << 15) | (unsigned long)g_JIFFY;</code></pre>
+            <p><em>MSXgl utilitza g_JIFFY en lloc de _Time per obtenir un comptador de temps del BIOS.</em></p>
+        </div>
+    </div>
+
+    <h3>Gestió de fitxers FCB</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">void FT_SetName(FCB *p_fcb, const char *p_name)
+{
+    memset(p_fcb, 0, sizeof(FCB));
+    for (i = 0; i < 11; i++) {
+        p_fcb->name[i] = ' ';
+    }
+    for (i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++) {
+        p_fcb->name[i] = p_name[i];
+    }
+    if (p_name[i] == '.') {
+        i++;
+        for (j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.'); j++) {
+            p_fcb->ext[j] = p_name[i + j];
+        }
+    }
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">DOS_FCB g_File;
+
+void FT_SetName(DOS_FCB *p_fcb, const char *p_name)
+{
+    char i, j;
+    Mem_Set(0, p_fcb, sizeof(DOS_FCB));
+    for (i = 0; i < 11; i++) {
+        p_fcb->Name[i] = ' ';
+    }
+    for (i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++) {
+        p_fcb->Name[i] = p_name[i];
+    }
+    if (p_name[i] == '.') {
+        i++;
+        for (j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.'); j++) {
+            p_fcb->Name[8 + j] = p_name[i + j];
+        }
+    }
+}</code></pre>
+            <p><em>MSXgl utilitza DOS_FCB en lloc de FCB, Mem_Set en lloc de memset, i els camps es diuen Name en lloc de name/ext.</em></p>
+        </div>
+    </div>
+
+    <h3>Gestió d'errors</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">Screen(0);
+SetColors(15,6,6);
+Print("\n\rFAILED: fcb_open(): ");
+Print(name);
+Print("\n\rFAILED: fcb_close():");
+Print(name);
+Print("\n\rStop Kidding, run me on MSX2 !");
+Exit(0);</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">VDP_SetMode(VDP_MODE_SCREEN0);
+VDP_SetColor(0x16);
+DOS_StringOutput("\n\rFAILED: file open: ");
+DOS_StringOutput(name);
+DOS_StringOutput("\n\rFAILED: file close: ");
+DOS_StringOutput(name);
+DOS_StringOutput("\n\rStop Kidding, run me on MSX2 !");
+DOS_Exit0();</code></pre>
+            <p><em>MSXgl utilitza funcions VDP_ per configurar la pantalla, DOS_StringOutput per imprimir text i DOS_Exit0() per sortir.</em></p>
+        </div>
+    </div>
+
+    <h3>Càrrega d'imatges SC5</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">int FT_LoadSc5Image(char *file_name, unsigned int start_Y, char *buffer, 
+                    unsigned int amplada_linia, unsigned int tamany_buffer)
+{
+    int rd=2560;
+    FT_SetName( &file, file_name );
+    if(fcb_open( &file ) != FCB_SUCCESS) 
+    {
+        FT_errorHandler(1, file_name);
+        return (0);
+    }
+    fcb_read( &file, buffer, 7 );  // Skip 7 first bytes
+    while (rd!=0)
+    {
+        rd = fcb_read( &file, buffer, tamany_buffer );
+        HMMC(buffer, 0,start_Y,amplada_linia,20 );
+        start_Y=start_Y+20;
+    }
+    return(1);
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">int FT_LoadSc5Image(char *file_name) {
+    FT_SetName(&g_File, file_name);
+    DOS_OpenFCB(&g_File);
+
+    // Read file and copy content into VRAM
+    u16 dst = 0x8000;
+    for (u16 i = 0; i < g_File.Size; i += 128) {
+        DOS_SetTransferAddr(g_StrBuffer);
+        DOS_SequentialReadFCB(&g_File);
+
+        const u8 *src;
+        u8 size;
+        if (i == 0) {
+            src = g_StrBuffer + 7;  // Saltem els primers 7 bytes
+            size = 128 - 7;
+        } else {
+            src = g_StrBuffer;
+            size = 128;
+        }
+
+        VDP_WriteVRAM(src, dst, 0, size);
+        dst += size;
+    }
+    DOS_CloseFCB(&g_File);
+    return 1;
+}</code></pre>
+            <p><em>MSXgl simplifica la càrrega d'imatges llegint en blocs de 128 bytes i utilitzant VDP_WriteVRAM per copiar directament a la VRAM.</em></p>
+        </div>
+    </div>
+
+    <h3>Càrrega de paletes</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">int FT_LoadPalette(char *file_name, char *buffer, char *mypalette) 
+{
+    unsigned char paleta_flatten[48];
+    FT_SetName(&file, file_name);
+    fcb_read(&file, buffer, 7); // Skip 7 first bytes
+    fcb_read(&file, buffer, 24); 
+    for(int k=0; k<24; k++){
+        paleta_flatten[2*k] = buffer[k]>>4 & 0x07;
+        paleta_flatten[2*k+1] = buffer[k] & 0x07;
+    }
+    for(int k=0; k<16; k++) {
+        mypalette[4 * k] = k;
+        mypalette[4 * k + 1] = paleta_flatten[3 * k]; //red
+        mypalette[4 * k + 2] = paleta_flatten[3 * k + 1]; // green
+        mypalette[4 * k + 3] = paleta_flatten[3 * k + 2]; // blue
+    }
+    SetPalette((Palette *)mypalette);
+    return (1);
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">int FT_LoadPalette(char *file_name) {
+    u16 paleta[16];
+    u8 paleta_flatten[48];
+
+    FT_SetName(&g_File, file_name);
+    DOS_OpenFCB(&g_File);
+
+    DOS_SetTransferAddr(g_StrBuffer);
+    DOS_SequentialReadFCB(&g_File);
+
+    // La paleta té el format [00000|G:3] [0|R:3|0|B:3]
+    for (u8 k = 0; k < 24; k++) {
+        paleta_flatten[2 * k] = g_StrBuffer[k+7] >> 4 & 0x07;
+        paleta_flatten[2 * k + 1] = g_StrBuffer[k+7] & 0x07;
+    }
+    for (int k = 0; k < 16; k++) {
+        paleta[k] = RGB16( paleta_flatten[3*k], paleta_flatten[3*k+1], paleta_flatten[3*k+2]);
+    }
+    DOS_CloseFCB(&g_File);
+
+    VDP_SetPalette(paleta);
+    return 1;
+}</code></pre>
+            <p><em>MSXgl utilitza RGB16() per crear colors de 16 bits i VDP_SetPalette() per aplicar la paleta directament.</em></p>
+        </div>
+    </div>
+
+    <h3>Sistema d'interrupcions</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">// Sistema complex d'interrupcions
+unsigned char OldHook[5];
+unsigned char MyHook[5];
+unsigned char IntFunc[5];
+unsigned char TypeOfInt;
+__at 0xFD9F unsigned char VdpIntHook[];
+__at 0xFD9A unsigned char AllIntHook[];
+__at 0xF344 unsigned char RAMAD3;
+
+void InterruptHandlerHelper (void) __naked
+{
+__asm
+    push af
+    call _IntFunc
+    pop af
+    jp _OldHook
+__endasm;
+}
+
+void InitializeMyInterruptHandler (int myInterruptHandlerFunction, unsigned char isVdpInterrupt)
+{
+    // ... codi complex per gestionar interrupcions ...
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">// Sistema simplificat
+__at 0xc000 char copsVsync;
+__at 0xc001 u8 debugar;
+
+// V-blank interruption handler (called from the ISR)
+void VDP_InterruptHandler()
+{
+    processar_moviment = 1;
+    processar_esquirols = 1;
+    copsVsync++;
+}</code></pre>
+            <p><em>MSXgl simplifica enormement la gestió d'interrupcions amb un sistema més net i fàcil d'utilitzar.</em></p>
+        </div>
+    </div>
+
+    <h3>Inicialització de la pantalla de joc</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">FT_LoadSc5Image("PatCit.sc5", 256, LDbuffer, 512, BUFFER_SIZE_SC5);
+FT_LoadPalette("PatCit.pl5", LDbuffer, mypalette);
+SetPalette((Palette *)mypalette);
+
+HMMM(stamp_x, stamp_y, n * 8, OFFSET_COORDENADAY_PAGINA_ACTIVA_2 + m * 8, 8, 8);
+
+SpriteSmall();
+SetSpritePattern(0, sprite, 8);
+char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13};
+SetSpriteColors(0, colorSprites);
+SetSpritePattern(1, esquirol, 8);
+for(int k=0; k<32; k++){
+    PutSprite(k,k,255,255,0);
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">FT_LoadSc5Image("PatCit.sc5");
+FT_LoadPalette("PatCit.pl5");
+
+VDP_CommandHMMM(stamp_x, stamp_y, n * 8, OFFSET_COORDENADAY_PAGINA_ACTIVA_2 + m * 8, 8, 8);
+
+VDP_SetSpriteFlag(VDP_SPRITE_SIZE_8 | VDP_SPRITE_SCALE_1);
+VDP_LoadSpritePattern(sprite, 0, 1);
+VDP_LoadSpritePattern(esquirol, 1, 1);
+for(int k=1; k<32; k++){
+    VDP_SetSpritePosition(k, 255, 255);
+}</code></pre>
+            <p><em>MSXgl utilitza funcions VDP_ més específiques i elimina la necessitat de passar buffers com a paràmetres.</em></p>
+        </div>
+    </div>
+
+    <h3>Funcions de scroll</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">SetScrollV(pos_scroll_y);
+SetScrollH(pos_scroll_x);</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">VDP_SetVerticalOffset(pos_scroll_y);
+VDP_SetHorizontalOffset(pos_scroll_x-8);</code></pre>
+            <p><em>MSXgl utilitza noms més descriptius per les funcions de scroll i ajusta automàticament els offsets.</em></p>
+        </div>
+    </div>
+
+    <h3>Gestió de sprites</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13};
+SetSpriteColors(0, colorSprites);
+PutSprite(esquirols[k].num_pla_sprite, 1, esquirols[k].x, esquirols[k].y, 0);</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">// En MSXgl l'array és de 16 encara que sigui de 8x8  
+char colorSprites[] = {1, 9, 10, 1, 9, 10, 7, 13, 3,3,3,3, 3,3,3,3};
+VDP_SetSpriteMultiColor(0, colorSprites);
+VDP_SetSprite(esquirols[k].num_pla_sprite, esquirols[k].x, esquirols[k].y, 1);</code></pre>
+            <p><em>MSXgl requereix arrays de colors de 16 elements per sprites de 8x8 i utilitza funcions més específiques.</em></p>
+        </div>
+    </div>
+
+    <h3>Entrada de joystick i teclat</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">while (Inkey()!=27)
+{
+    stick = JoystickRead(0);
+    space = TriggerRead(0);
+    
+    if (stick == 1) {
+        // Amunt
+        moviment_amunt();
+    } else if (stick == 2) {
+        // Amunt dreta
+        moviment_dreta();
+        moviment_amunt();
+    } else if (stick == 3) {
+        // Dreta
+        moviment_dreta();
+    }
+    // ... més direccions ...
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">while (!Bios_IsKeyPressed(KEY_ESC))
+{
+    stick = Joystick_Read(JOY_PORT_1);
+    space = Joystick_IsButtonPressed(JOY_PORT_1, JOY_INPUT_TRIGGER_A);
+
+    u8 dir = Joystick_GetDirection(JOY_PORT_1);
+    if (dir & JOY_INPUT_DIR_UP) {
+        moviment_amunt();
+    }
+    if (dir & JOY_INPUT_DIR_DOWN) {
+        moviment_avall();
+    }
+    if (dir & JOY_INPUT_DIR_LEFT) {
+        moviment_esquerra();
+    }
+    if (dir & JOY_INPUT_DIR_RIGHT) {
+        moviment_dreta();
+    }
+
+    // Keyboard input
+    u8 row8 = Keyboard_Read(8);
+    if (IS_KEY_PRESSED(row8, KEY_UP)) {
+        moviment_amunt();
+    }
+    // ... més tecles ...
+}</code></pre>
+            <p><em>MSXgl ofereix un sistema més flexible per llegir joystick i teclat, amb suport per múltiples direccions simultànies.</em></p>
+        </div>
+    </div>
+
+    <h3>Configuració inicial i finalització</h3>
+    
+    <div class="code-comparison">
+        <div class="fusion-c-box">
+            <h4>Fusion-C</h4>
+            <pre><code class="language-c">void main(){
+    Screen(5);
+    SetDisplayPage(2);
+    SetColorPalette(15 , 7, 7, 7);
+    SetScrollMask(1);
+    SetScrollH(1);
+    
+    InitializeMyInterruptHandler((int)main_loop, 1);
+    PutSprite(0, 0, x, y, 4);
+    moviment_sprite();
+    
+    EndMyInterruptHandler();
+    Screen(0);
+    RestorePalette();
+    printf("Pos sprite: %d, %d",x,y);
+    Exit(0);
+}</code></pre>
+        </div>
+        <div class="msxgl-box">
+            <h4>MSXgl</h4>
+            <pre><code class="language-c">void main() {
+    VDP_SetMode(VDP_MODE_GRAPHIC4);
+    VDP_SetPage(2);
+    VDP_SetPaletteEntry(15, RGB16(7, 7, 7));
+    VDP_EnableMask(TRUE);
+    VDP_SetHorizontalOffset(pos_scroll_x-8);
+    
+    VDP_EnableVBlank(TRUE);
+    Bios_SetHookCallback(H_TIMI, VDP_InterruptHandler);
+    VDP_SetSprite(0, x, y, 0);
+    moviment_sprite();
+    
+    Bios_ClearHook(H_TIMI);
+    VDP_EnableVBlank(FALSE);
+    VDP_SetMode(VDP_MODE_SCREEN0);
+    VDP_SetColor(0x16);
+    
+    String_Format(g_StrBuffer, "Collisions: %d\n\r", collision_count);
+    DOS_StringOutput(g_StrBuffer);
+    Bios_Exit(0);
+}</code></pre>
+            <p><em>MSXgl utilitza funcions més específiques per configurar el VDP i gestionar les interrupcions, amb millor control sobre l'estat del sistema.</em></p>
+        </div>
     </div>
 </body>
 
