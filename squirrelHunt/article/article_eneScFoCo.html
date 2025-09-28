@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <meta name="author" content="Your Name" />
+    <meta name="dcterms.date" content="2025-09-27" />
+    <title>MSXgl: Guia d’Introducció i Migració</title>
+    <style>
+        html {
+            color: #1a1a1a;
+            background-color: #fdfdfd;
+        }
+
+        body {
+            margin: 0 auto;
+            max-width: 36em;
+            padding-left: 50px;
+            padding-right: 50px;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            text-rendering: optimizeLegibility;
+            font-kerning: normal;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 0.9em;
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        @media print {
+            html {
+                background-color: white;
+            }
+
+            body {
+                background-color: transparent;
+                color: black;
+                font-size: 12pt;
+            }
+
+            p,
+            h2,
+            h3 {
+                orphans: 3;
+                widows: 3;
+            }
+
+            h2,
+            h3,
+            h4 {
+                page-break-after: avoid;
+            }
+        }
+
+        p {
+            margin: 1em 0;
+            text-align: justify;
+        }
+
+        a {
+            color: #1a1a1a;
+        }
+
+        a:visited {
+            color: #1a1a1a;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        svg {
+            height: auto;
+            max-width: 100%;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-top: 1.4em;
+        }
+
+        h5,
+        h6 {
+            font-size: 1em;
+            font-style: italic;
+        }
+
+        h6 {
+            font-weight: normal;
+        }
+
+        ol,
+        ul {
+            padding-left: 1.7em;
+            margin-top: 1em;
+        }
+
+        li>ol,
+        li>ul {
+            margin-top: 0;
+        }
+
+        blockquote {
+            margin: 1em 0 1em 1.7em;
+            padding-left: 1em;
+            border-left: 2px solid #e6e6e6;
+            color: #606060;
+        }
+
+        code {
+            font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+            font-size: 85%;
+            margin: 0;
+            hyphens: manual;
+        }
+
+        pre {
+            margin: 1em 0;
+            overflow: auto;
+        }
+
+        pre code {
+            padding: 0;
+            overflow: visible;
+            overflow-wrap: normal;
+        }
+
+        .sourceCode {
+            background-color: transparent;
+            overflow: visible;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #1a1a1a;
+            height: 1px;
+            margin: 1em 0;
+        }
+
+        table {
+            margin: 1em 0;
+            border-collapse: collapse;
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+            font-variant-numeric: lining-nums tabular-nums;
+        }
+
+        table caption {
+            margin-bottom: 0.75em;
+        }
+
+        tbody {
+            margin-top: 0.5em;
+            border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        th {
+            border-top: 1px solid #1a1a1a;
+            padding: 0.25em 0.5em 0.25em 0.5em;
+        }
+
+        td {
+            padding: 0.125em 0.5em 0.25em 0.5em;
+        }
+
+        header {
+            margin-bottom: 4em;
+            text-align: center;
+        }
+
+        #TOC li {
+            list-style: none;
+        }
+
+        #TOC ul {
+            padding-left: 1.3em;
+        }
+
+        #TOC>ul {
+            padding-left: 0;
+        }
+
+        #TOC a:not(:hover) {
+            text-decoration: none;
+        }
+
+        code {
+            white-space: pre-wrap;
+        }
+
+        span.smallcaps {
+            font-variant: small-caps;
+        }
+
+        div.columns {
+            display: flex;
+            gap: min(4vw, 1.5em);
+        }
+
+        div.column {
+            flex: auto;
+            overflow-x: auto;
+        }
+
+        div.hanging-indent {
+            margin-left: 1.5em;
+            text-indent: -1.5em;
+        }
+
+        ul.task-list[class] {
+            list-style: none;
+        }
+
+        ul.task-list li input[type="checkbox"] {
+            font-size: inherit;
+            width: 0.8em;
+            margin: 0 0.8em 0.2em -1.6em;
+            vertical-align: middle;
+        }
+
+        .display.math {
+            display: block;
+            text-align: center;
+            margin: 0.5rem auto;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        pre>code.sourceCode {
+            white-space: pre;
+            position: relative;
+        }
+
+        pre>code.sourceCode>span {
+            display: inline-block;
+            line-height: 1.25;
+        }
+
+        pre>code.sourceCode>span:empty {
+            height: 1.2em;
+        }
+
+        .sourceCode {
+            overflow: visible;
+        }
+
+        code.sourceCode>span {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
+        div.sourceCode {
+            margin: 1em 0;
+        }
+
+        pre.sourceCode {
+            margin: 0;
+        }
+
+        @media screen {
+            div.sourceCode {
+                overflow: auto;
+            }
+        }
+
+        @media print {
+            pre>code.sourceCode {
+                white-space: pre-wrap;
+            }
+
+            pre>code.sourceCode>span {
+                text-indent: -5em;
+                padding-left: 5em;
+            }
+        }
+
+        pre.numberSource code {
+            counter-reset: source-line 0;
+        }
+
+        pre.numberSource code>span {
+            position: relative;
+            left: -4em;
+            counter-increment: source-line;
+        }
+
+        pre.numberSource code>span>a:first-child::before {
+            content: counter(source-line);
+            position: relative;
+            left: -1em;
+            text-align: right;
+            vertical-align: baseline;
+            border: none;
+            display: inline-block;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            padding: 0 4px;
+            width: 4em;
+            color: #aaaaaa;
+        }
+
+        pre.numberSource {
+            margin-left: 3em;
+            border-left: 1px solid #aaaaaa;
+            padding-left: 4px;
+        }
+
+        div.sourceCode {}
+
+        @media screen {
+            pre>code.sourceCode>span>a:first-child::before {
+                text-decoration: underline;
+            }
+        }
+
+        code span.al {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        code span.an {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.at {
+            color: #7d9029;
+        }
+
+        code span.bn {
+            color: #40a070;
+        }
+
+        code span.bu {
+            color: #008000;
+        }
+
+        code span.cf {
+            color: #007020;
+            font-weight: bold;
+        }
+
+        code span.ch {
+            color: #4070a0;
+        }
+
+        code span.cn {
+            color: #880000;
+        }
+
+        code span.co {
+            color: #60a0b0;
+            font-style: italic;
+        }
+
+        code span.cv {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.do {
+            color: #ba2121;
+            font-style: italic;
+        }
+
+        code span.dt {
+            color: #902000;
+        }
+
+        code span.dv {
+            color: #40a070;
+        }
+
+        code span.er {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        code span.ex {}
+
+        code span.fl {
+            color: #40a070;
+        }
+
+        code span.fu {
+            color: #06287e;
+        }
+
+        code span.im {
+            color: #008000;
+            font-weight: bold;
+        }
+
+        code span.in {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.kw {
+            color: #007020;
+            font-weight: bold;
+        }
+
+        code span.op {
+            color: #666666;
+        }
+
+        code span.ot {
+            color: #007020;
+        }
+
+        code span.pp {
+            color: #bc7a00;
+        }
+
+        code span.sc {
+            color: #4070a0;
+        }
+
+        code span.ss {
+            color: #bb6688;
+        }
+
+        code span.st {
+            color: #4070a0;
+        }
+
+        code span.va {
+            color: #19177c;
+        }
+
+        code span.vs {
+            color: #4070a0;
+        }
+
+        code span.wa {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        /* Caixa general semblant a tcolorbox */
+        .code-explain-box {
+            display: flex;
+            /* distribució horitzontal */
+            gap: 1rem;
+            /* espai entre codi i text */
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+            max-width: 900px;
+            margin: 2rem auto;
+            /* centrat a la pàgina */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Panell del codi */
+        .code pre {
+            margin: 0;
+            padding: 0.75rem;
+            background: #272822;
+            /* estil tipus Monokai */
+            color: #f8f8f2;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Panell del text */
+        .explanation {
+            flex: 1;
+            /* ocupa l'espai restant */
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Responsiu: apila en pantalles estretes */
+        @media (max-width: 700px) {
+            .code-explain-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header id="title-block-header">
+        <h1 class="title">MSXgl: Guia d’Introducció i Migració</h1>
+    </header>
+    <h1 id="què-és-msxgl">Què és MSXgl?</h1>
+    <p><a href="https://github.com/aoineko-fr/MSXgl">MSXgl</a> és una llibreria ideada per a crear videojocs utilitzant el
+        desenvolupament creuat en C amb el compilador <a href="https://sdcc.sourceforge.net/"> sdcc</a>. La part gl del nom
+        es tradueix com a game library (llibreria de joc). El seu creador és
+        l’aoineko i la va publicar al github al març del 2023. La <a href="https://aoineko.org/msxgl/index.php?title=Main_Page"> pàgina web </a> és
+        de l’octubre del 2022. Des d’aleshores que segueix millorant-la i
+        ampliant-la.</p>
+    <h1 id="installació">Instal·lació</h1>
+    <p>Per instal·lar el MSXgl només cal accedir al <a href="https://github.com/aoineko-fr/MSXgl"> github del projecte </a> i
+        copiar el repositori en el nostre directori de treball. Els nostres
+        projectes han d’anar a un directori que anomenarem com volguem dins de
+        <em>MSXgl/projects</em>. En aquest directori ja tenim diferents
+        carpetes que són:
+    <ul>
+        <li>
+            <strong>example</strong>: hi trobem un exemple d’un joc per a dos
+            jugadors que s’han de passar una pilota
+        </li>
+        <li>
+            <strong>samples</strong>: són tot de petites aplicacions que
+                proven una cosa diferent: la música, els sprites, els colors, etc. Per
+                compilar-los només cal executar build i el nom
+        </li>
+        <li>
+            <strong>targets</strong>: Mostra informació sobre la distribució
+                de la memòria del MSX pels diferents formats dels mappers del
+                MSXgl
+        </li>
+        <li>
+            <strong>template</strong>: seria el hello world però mostra text
+            en screen 2. Serveix per tenir com a esquelet dels nous projectes que
+            vagis creant
+        </li>
+        <li>
+            <strong>template_msx2</strong>: el mateix que l’anterior però ara
+                per a MSX2 utilitzant screen 5<
+        </li>
+    </ul>
+    <p>Per comprovar que la instal·lació funciona, només cal que ens
+        col·loquem dins el directori <em>example</em> i executem
+        <code>build.sh</code> si estem en Linux/Mac o <code>build.bat</code> si
+        estem utilitzant Windows. El fitxer creat, si utilitzem la configuració
+        per defecte, va a parar a <em>./out/nom.rom</em> on trobem el fitxer
+        rom generat i que el podrem executar amb l’openMSX com:
+    </p>
+    <div class="sourceCode" id="cb1" data-language="bash">
+        <pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>openmsx -machine Panasonic_FS-A1ST out/example.rom</span></code></pre>
+    </div>
+    <p>On veurem dos bonics pingüins que han de passar la pilota d’un costat
+        a l’altre sense que surti de la pantalla.
+    <p> <img role="img" aria-label="image" src="data:image/png;base64,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zpJW2a6rfQh4HngI2AXkAwA6gJXA74DHgd8BK89ee5gP7ALo6enp6elnoRcFbB3eLvV/st3bg8ky2ak0ktsTanb4taNSVQdsPtR2weaCZQAOAC6YumD3wdqB+lFYe84eq1DBMQoLPT09PT39LPThEIJCBNJFr6Od5ONQLjMkqspM2jK3zpCPOh2Qg5VtQAbMAPxADsw6IB91SUA2qqLbzkbhSYCenp6enn4WelGAJtgtyS56lyW2Q3p6enr6+Pdsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PQX82yH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09BfzbIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0F/Nsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PQX82yH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09BfzbIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0F/Nsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PQX82yH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09GyH9PT09PT0bIf09PT09PRsh/T09PT09FenHaqUhgVJZcvmlNUbDVXOuu3APakrI0qYPOaQD0YN7jOaD0uoHqrbL2G9seqEBg4fcj2FQ0psTK2zAYudK/tFrEg0q3SwBbHIZd4rw8a0upMyVLiqNEGYdFicWOgQwe1z+9w+t8/tc/sx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" style="width:60.0%" alt="image" /></p>
+    <p>En aquest mateix directori també tindrem tots els fitxers generats
+        per l’sdcc.</p>
+    <h1 id="configuració">Configuració</h1>
+    <p>Hi ha dos fitxers principals de configuració, el
+        <strong><em>project_config.js</em></strong> que conté aspectes relatius a la
+        forma de compilar el projecte, el que seria el <em>makefile</em> en
+        altres projectes:
+    <ul>
+        <li>
+            Generació del binari final en diferents formats (ROM, BIN,
+                COM…).
+        </li>
+        <li>
+            Configuració de la màquina objectiu (MSX1, MSX2, 2+, Turbo-R…).
+        </li>
+        <li>
+            Opcions d’optimització i depuració per ajustar velocitat, mida o
+                mode debug.
+        </li>
+        <li>
+            Gestió d’arxius addicionals (fitxers binaris, imatges de
+                disc).
+        </li>
+        <li>
+            Execució automàtica en emulador amb possibilitat d’afegir
+                extensions (SCC, MSX-Music, OPL4, V9990…).
+        </li>
+    </ul>
+    <p>El MSXgl té un disseny modular, pensat perquè cada projecte pugui activar només les parts de la
+        llibreria que necessita. Això permet obtenir programes més lleugers,
+        tant en temps d’execució com en consum de memòria.</p>
+    <p>Tots aquests mòduls es configuren al fitxer
+        <strong><em>msxgl_config.h</em></strong>, on podem definir:
+    <ul>
+        <li>
+            <strong>Objectiu i màquina</strong>: Selecció del format de
+                programa (ROM, BIN, COM, MegaROM…) i la versió de MSX (MSX1, MSX2, Turbo
+                R, etc.).
+        </li>
+        <li>
+            <strong>BIOS i VDP</strong>: Definir com accedir a les rutines de
+                BIOS (directe o interslot).Configurar el xip de vídeo (VDP): modes de
+                pantalla permesos, ús de sprites, comandes, paletes, protecció
+                ISR…
+        </li>
+        <li>
+            <strong>Mòduls addicionals</strong>:
+            <ul>
+                <li>
+                    <strong>Input</strong>: teclat, joystick, ratolí, paddle,
+                        proteccions ISR.
+                </li>
+                <li>
+                    <strong>Memòria</strong>: funcions ràpides de memcpy/set, gestió
+                        dinàmica, validacions.
+                </li>
+                <li>
+                    <strong>MSX-DOS</strong>: suport per fitxers amb FCB, handles i
+                        utilitats.
+                </li>
+                <li>
+                    <strong>Rellotge</strong> RTC: data/hora, dades en CMOS,
+                        validació.
+                </li>
+                <li>
+                    <strong>Print i Text</strong>: fonts de text, bitmap, VRAM,
+                        sprites, efectes (ombra, outline), printf.
+                </li>
+                <li>
+                    <strong>Sprites FX</strong>: flip, crop, màscara,
+                        rotació.
+                </li>
+                <li>
+                    <strong>Game framework</strong>: estat del joc, bucle principal,
+                        vsync.
+                </li>
+                <li>
+                    <strong>GamePawn</strong>: físics, col·lisions, tilemap, límits
+                        de pantalla.
+                </li>
+                <li>
+                    <strong>Menus</strong>: definició d’interfícies de menú amb
+                        callbacks.
+                </li>
+                <li>
+                    <strong>Scroll i Tilemap</strong>: scrolling
+                        horitzontal/vertical, ajust per píxel, màscares amb sprites.
+                </li>
+                <li>
+                    <strong>Audio</strong>: PSG, SCC, MSX-Music, MSX-Audio, replayers
+                        (PT3, TriloTracker, WYZ, VGM, LVGM, PCM…).
+                </li>
+                <li>
+                    <strong>Compressió</strong>: suport per RLEp, Pletter, Bitbuster,
+                        ZX0, LZ48, MSXi.
+                </li>
+                <li>
+                    <strong>Altres</strong>: NinjaTap, PAC (save SRAM), generació de
+                        QR Codes, mòdul de cadenes i sprintf, matemàtiques i random.
+                </li>
+            </ul>
+        </li>
+        <li>
+            <strong>Debug i Perfilat</strong>: Opcions per activar debugging
+                amb Emulicious o openMSX i perfilar rendiment.
+        </li>
+    </ul>
+    <p>El primer cop que veus tantes opcions, quedes desbordat. Però no cal
+        tenir por a l’hora de provar la llibreria: la plantilla inicial ja
+        compila correctament un projecte genèric i pots començar a treballar-hi
+        de seguida. Els detalls de configuració són per més endavant, quan
+        coneguis millor la llibreria o vulguis activar algun mòdul concret (que
+        també trobaràs a la secció d’exemples). És com un sistema operatiu
+        acabat d’instal·lar: pots fer-lo servir des del primer moment, i només
+        quan ho necessites ajustes les opcions avançades.</p>
+    <h1 id="moviment-de-tiles-i-sprites-de-fusion-c-a-msxgl">Moviment de
+        tiles i sprites de Fusion-C a MSXgl</h1>
+    <p>Fins ara només hem presentat el que és la MSXgl, mirem-ho d’aplicar a
+        un cas pràctic. Teníem la nostra aplicació que llegia del disquet unes
+        imatges per crear uns patrons i teníem el personatge principal i uns
+        enemics que es movien per la pantalla. El personatge principal feia
+        scroll de la pantalla principal quan arribava als marges. Quines
+        modificacions cal fer perquè funcioni per a MSXgl?</p>
+    <h2 id="configuració-msxgl_config.h">Configuració <em>msxgl_config.h</em></h2>
+    <p>Aquestes són les línies que s’han modificat del fitxer de configuració dels mòduls que utilitzarem en el nostre programa:</p>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-c">
+#define VDP_UNIT    VDP_UNIT_U8
+            </code></pre>
+        </div>
+
+        <div class="explanation">
+            <p>Els scrolls i les pantalles són de 256, no necessitem els X16</p>
+        </div>
+    </div>
+
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-c">
+#define VDP_USE_MODE_G3 FALSE   // MSX2     Screen 4
+#define VDP_USE_MODE_G4 TRUE    // MSX2     Screen 5
+#define VDP_USE_MODE_G5 FALSE   // MSX2     Screen 6
+#define VDP_USE_MODE_G6 FALSE   // MSX2     Screen 7
+            </code></pre>
+        </div>
+
+        <div class="explanation">
+            <p>Activem només l’screen 5</p>
+        </div>
+    </div>
+
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-c">
+#define VDP_USE_PALETTE16 TRUE  
+            </code></pre>
+        </div>
+
+        <div class="explanation">
+            <p>La MSXgl defineix el color 0 com a transparent. Fins ara no havíem
+                seguit cap tipus de norma per definir el color transparent. Per això
+                diem que les nostres entrades seran de 16 colors.</p>
+        </div>
+    </div>
+    <div class="code-explain-box">
+        <div class="code">
+            <pre><code class="language-c">
+#define PRINT_USE_VRAM  FALSE
+#define PRINT_USE_SPRITE  FALSE
+#define PRINT_USE_FX_SHADOW  FALSE
+#define PRINT_USE_FX_OUTLINE FALSE
+            </code></pre>
+        </div>
+
+        <div class="explanation">
+            <p>No utilitzem el mòdul Print de la MSXgl que permet escriure diferents
+                caràcters en diferents screens del MSX usant memòria VRAM o sprites.
+                Podria eliminar més, però només vaig tocar aquestes que afectaven la
+                VRAM que sí que utilitzem per anar fent els tiles.</p>
+        </div>
+    </div>
+    <p>Dels mòduls restants, no utilitzem ni el mòdul del scroll ni el del GamePawn de moment, ja
+        que aquesta part ja l’havíem feta amb les nostres funcions.</p>
+
+    <h2 id="configuració-project_config.js">Configuració <em>project_config.js</em></h2>
+    <p>El fitxer per determinar com compilar i enllaçar el projecte ha estat
+        modificat a les següents línies:</p>
+    <div class="sourceCode" id="cb8" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>DoRun <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>Quan acabi la compilació correrà l’emulador escollit amb la ROM o la
+        DSK obtinguda de la compilació</p>
+    <div class="sourceCode" id="cb9" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Emulator <span class="op">=</span> <span class="er">&#39;</span><span class="op">/</span>home<span class="op">/</span>jepsuse<span class="op">/</span>MSX<span class="op">/</span>openMSX<span class="op">/</span>derived<span class="op">/</span>openmsx<span class="er">&#39;</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>El camí on el sistema operatiu pot trobar l’aplicació de
+        l’emulador</p>
+    <div class="sourceCode" id="cb10" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ProjName <span class="op">=</span> <span class="st">&quot;squirrel&quot;</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>El nom que li donem al projecte. De moment no he descobert que
+        influenciï en cap altre procés del projecte</p>
+    <div class="sourceCode" id="cb11" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ProjModules <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;eneScFoCo&quot;</span> <span class="op">];</span></span></code></pre>
+    </div>
+    <p>El nom dels diferents fitxers C a compilar</p>
+    <div class="sourceCode" id="cb12" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>LibModules <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;system&quot;</span><span class="op">,</span> <span class="st">&quot;bios&quot;</span><span class="op">,</span> <span class="st">&quot;vdp&quot;</span><span class="op">,</span> <span class="st">&quot;print&quot;</span><span class="op">,</span> <span class="st">&quot;input&quot;</span><span class="op">,</span> <span class="st">&quot;memory&quot;</span><span class="op">,</span> <span class="st">&quot;dos&quot;</span><span class="op">,</span> <span class="st">&quot;string&quot;</span><span class="op">,</span> <span class="st">&quot;tool/reg&quot;</span> <span class="op">];</span></span></code></pre>
+    </div>
+    <p>Els mòduls de la llibreria que utilitzarem</p>
+    <div class="sourceCode" id="cb13" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Machine <span class="op">=</span> <span class="st">&quot;TR&quot;</span><span class="op">;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>EmulMachine <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>EmulExtraParam <span class="op">=</span> <span class="st">&quot;-machine Panasonic_FS-A1ST -ext moonsound&quot;</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>El nom de la màquina que utilitzem per la compilació i que també es
+        fa servir per a l’emulador. La MSXgl assumeix que l’openMSX és sense
+        ROMs, només utilitza la C-Bios i serveix només per a carregar
+        aplicacions .rom. Com que nosaltres volem compilar per a DOS i per a
+        Turbo-R, hem d’afegir que <code>EmulMachine = false</code>, si no farà
+        la comprovació i veurà que l’openMSX no té Turbo-R i no arrencarà
+        l’emulador. També hem de posar que es tracta d’un Turbo-R, per això
+        especifiquem el model en <code>EmulExtraParam</code>. Si hi volguéssim
+        posar més accessoris, també ho faríem aquí, com posant el moonsound a
+        l’exemple.</p>
+    <div class="sourceCode" id="cb14" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Target</span> <span class="op">=</span> <span class="st">&quot;DOS2&quot;</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>El tipus d’executable que obtindrem en finalitzar la compilació, en
+        aquest cas un DSK.</p>
+    <div class="sourceCode" id="cb15" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>DiskFiles <span class="op">=</span> <span class="op">[</span><span class="er">&#39;</span><span class="op">./</span>content<span class="op">/</span>img<span class="op">/</span>PatCit<span class="op">.</span><span class="fu">sc5</span><span class="er">&#39;</span><span class="op">,</span> <span class="er">&#39;</span><span class="op">./</span>content<span class="op">/</span>img<span class="op">/</span>PatCit<span class="op">.</span><span class="fu">pl5</span><span class="er">&#39;</span><span class="op">];</span></span></code></pre>
+    </div>
+    <p>Altres fitxers extres que es vulguin adjuntar al DSK creat. En el
+        nostre cas les imatges dels patrons que utilitzem per crear el fons.</p>
+    <div class="sourceCode" id="cb16" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>DiskSize <span class="op">=</span> <span class="st">&quot;720K&quot;</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>El tamany del dsk final, 720K, que és la màxima capacitat que pot
+        llegir el Turbo-R</p>
+    <div class="sourceCode" id="cb17" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>DOSParseArg <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>En cas que volguéssim utilitzar l’aplicació amb paràmetres dins del
+        MSX-DOS.</p>
+    <div class="sourceCode" id="cb18" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Debug <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>En el cas que necessitem debugar activem aquesta opció.</p>
+    <div class="sourceCode" id="cb19" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DebugSymbols <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>Si volem que es guardin els fitxers de símbols al directori amb els
+        altres fitxers de sortida. Aquests fitxers són els que contenen la
+        informació de cada línia de C traduïda a ensamblador.</p>
+    <div class="sourceCode" id="cb20" data-language="Java">
+        <pre class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>CompileSkipOld <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre>
+    </div>
+    <p>Si està en false, cada cop que compili, compilarà igualment tota la
+        llibreria, si posem que sigui true, només la compilarà quan hi hagi una
+        data més moderna a alguna dels fitxers per obtenir la llibreria. Hem de
+        tenir en compte que si modifiquem una part de la configuració, com els
+        16 colors de la paleta, hem de tornar a posar aquest paràmetre a false
+        per tornar a compilar la llibreria, altrament pot donar errors. Ara bé,
+        si l’únic que estem fent són modificacions al fitxer en .C, podem
+        estalviar temps i energia i saltar-nos la compilació de la llibreria
+        cada vegada, ja que serà sempre el mateix resultat.</p>
+    <h2 id="traducció-de-funcions-de-laplicació">Traducció de funcions de
+        l’aplicació</h2>
+    <p>Anem a traduir l’aplicació que teníem al gitlab de Fusion-C,
+        <code>enScFoCo.c</code>, a les funcions de MSXgl.
+    </p>
+    <p>El primer que hem de canviar són els includes:</p>
+    <p><strong>Abans (Fusion-C):</strong></p>
+    <div class="sourceCode" id="cb21" data-language="C">
+        <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/msx_fusion.h&quot;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_graph2.h&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;../fusion-c/include/vdp_sprites.h&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span></code></pre>
+    </div>
+    <p><strong>Després (MSXgl):</strong></p>
+    <div class="sourceCode" id="cb22" data-language="C">
+        <pre class="sourceCode objectivec"><code class="sourceCode objectivec"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;dos.h&quot;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;bios.h&quot;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;msxgl.h&quot;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;string.h&quot;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;tool/reg.h&quot;</span></span></code></pre>
+    </div>
+</body>
+
+</html>
