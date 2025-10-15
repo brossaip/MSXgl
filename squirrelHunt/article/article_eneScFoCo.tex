@@ -3,6 +3,9 @@
 \usepackage{array}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins}
 
 % Configure listings for code blocks
 \lstset{
@@ -40,121 +43,51 @@ Per instal·lar el MSXgl només cal accedir al github del projecte i copiar el r
 
 
 Per comprovar que la instal·lació funciona, només cal que ens col·loquem dins el directori \textit{example} i executem \texttt{build.sh} si estem en Linux/Mac o \texttt{build.bat} si estem utilitzant Windows. El fitxer creat, si utilitzem la configuració per defecte, va a parar a \texttt{./out/nom.rom} on trobem el fitxer rom generat i que el podrem executar amb l'openMSX com:
-
 \begin{lstlisting}[language=bash]
 openmsx -machine Panasonic_FS-A1ST out/example.rom
 \end{lstlisting}
 
 On veurem dos bonics pingüins que han de passar la pilota d'un costat a l'altre sense que surti de la pantalla.
+\includegraphics[width=0.6\linewidth]{Screenshot_Example.png}
 
 En aquest mateix directori també tindrem tots els fitxers generats per l'sdcc.
 
 \section{Configuració}
 
-Hi ha dos fitxers principals de configuració, el \textit{project\_config.js} que conté aspectes relatius a la forma de compilar el projecte, el que seria el \textit{makefile} en altres projectes:
-
-
-
-
-
-Generació del binari final en diferents formats (ROM, BIN, COM…).
-
-
-
-Configuració de la màquina objectiu (MSX1, MSX2, 2+, Turbo-R…).
-
-
-
-Opcions d’optimització i depuració per ajustar velocitat, mida o mode debug.
-
-
-
-Gestió d’arxius addicionals (fitxers binaris, imatges de disc).
-
-
-
-Execució automàtica en emulador amb possibilitat d’afegir extensions (SCC, MSX-Music, OPL4, V9990…).
-
-
-
-El MSXgl té un disseny modular, pensat perquè cada projecte pugui activar només les parts de la llibreria que necessita.Això permet obtenir programes més lleugers, tant en temps d’execució com en consum de memòria.
-
-Tots aquests mòduls es configuren al fitxer msxgl\_config.h, on podem definir:
-
-
-
-
-
-Objectiu i màquina: Selecció del format de programa (ROM, BIN, COM, MegaROM…) i la versió de MSX (MSX1, MSX2, Turbo R, etc.).
-
-
-
-BIOS i VDP: Definir com accedir a les rutines de BIOS (directe o interslot).Configurar el xip de vídeo (VDP): modes de pantalla permesos, ús de sprites, comandes, paletes, protecció ISR…
-
-
-
-Mòduls addicionals:
-
-
-
-
-
-Input: teclat, joystick, ratolí, paddle, proteccions ISR.
-
-
-
-Memòria: funcions ràpides de memcpy/set, gestió dinàmica, validacions.
-
-
-
-MSX-DOS: suport per fitxers amb FCB, handles i utilitats.
-
-
-
-Rellotge RTC: data/hora, dades en CMOS, validació.
-
-
-
-Print i Text: fonts de text, bitmap, VRAM, sprites, efectes (ombra, outline), printf.
-
-
-
-Sprites FX: flip, crop, màscara, rotació.
-
-
-
-Game framework: estat del joc, bucle principal, vsync.
-
-
-
-GamePawn: físics, col·lisions, tilemap, límits de pantalla.
-
-
-
-Menus: definició d’interfícies de menú amb callbacks.
-
-
-
-Scroll i Tilemap: scrolling horitzontal/vertical, ajust per píxel, màscares amb sprites.
-
-
-
-Audio: PSG, SCC, MSX-Music, MSX-Audio, replayers (PT3, TriloTracker, WYZ, VGM, LVGM, PCM…).
-
-
-
-Compressió: suport per RLEp, Pletter, Bitbuster, ZX0, LZ48, MSXi.
-
-
-
-Altres: NinjaTap, PAC (save SRAM), generació de QR Codes, mòdul de cadenes i sprintf, matemàtiques i random.
-
-
-
-Debug i Perfilat: Opcions per activar debugging amb Emulicious o openMSX i perfilar rendiment.
-
-
-
+Hi ha dos fitxers principals de configuració, el \textbf{project\_config.js} que conté aspectes relatius a la forma de compilar el projecte, el que seria el \textit{makefile} en altres projectes:
+\begin{itemize}
+\item Generació del binari final en diferents formats (ROM, BIN, COM…).
+\item Configuració de la màquina objectiu (MSX1, MSX2, 2+, Turbo-R…).
+\item Opcions d'optimització i depuració per ajustar velocitat, mida o mode debug.
+\item Gestió d'arxius addicionals (fitxers binaris, imatges de disc).
+\item Execució automàtica en emulador amb possibilitat d'afegir extensions (SCC, MSX-Music, OPL4, V9990…).
+\end{itemize}
+
+El \textbf{MSXgl} té un disseny \textbf{modular}, pensat perquè cada projecte pugui activar només
+les parts de la llibreria que necessita. Això permet obtenir programes més lleugers, tant en temps d’execució com en consum de memòria.
+
+Tots aquests mòduls es configuren al fitxer \textbf{msxgl\_config.h}, on podem definir:
+\begin{itemize}
+\item \textbf{Objectiu i màquina}: Selecció del format de programa (ROM, BIN, COM, MegaROM…) i la versió de MSX (MSX1, MSX2, Turbo R, etc.).
+\item \textbf{BIOS i VDP}: Definir com accedir a les rutines de BIOS (directe o interslot).Configurar el xip de vídeo (VDP): modes de pantalla permesos, ús de sprites, comandes, paletes, protecció ISR…
+\item \textbf{Mòduls addicionals}:
+  \begin{itemize}
+    \item \textbf{Input}: teclat, joystick, ratolí, paddle, proteccions ISR.
+    \item \textbf{Memòria}: funcions ràpides de memcpy/set, gestió dinàmica, validacions.
+    \item \textbf{MSX-DOS}: suport per fitxers amb FCB, handles i utilitats.
+    \item \textbf{Rellotge} RTC: data/hora, dades en CMOS, validació.
+    \item \textbf{Print i Text}: fonts de text, bitmap, VRAM, sprites, efectes (ombra, outline), printf.
+    \item \textbf{Sprites FX}: flip, crop, màscara, rotació.
+    \item \textbf{Game framework}: estat del joc, bucle principal, vsync.
+    \item \textbf{GamePawn}: físics, col·lisions, tilemap, límits de pantalla.
+    \item \textbf{Menus}: definició d’interfícies de menú amb callbacks.
+    \item \textbf{Scroll i Tilemap}: scrolling horitzontal/vertical, ajust per píxel, màscares amb sprites.
+    \item \textbf{Audio}: PSG, SCC, MSX-Music, MSX-Audio, replayers (PT3, TriloTracker, WYZ, VGM, LVGM, PCM…).
+    \item \textbf{Compressió}: suport per RLEp, Pletter, Bitbuster, ZX0, LZ48, MSXi.
+    \item \textbf{Altres}: NinjaTap, PAC (save SRAM), generació de QR Codes, mòdul de cadenes i sprintf, matemàtiques i random.
+  \end{itemize}
+\item \textbf{Debug i Perfilat}: Opcions per activar debugging amb Emulicious o openMSX i perfilar rendiment.
+\end{itemize}
 El primer cop que veus tantes opcions, quedes desbordat. Però no cal tenir por a l’hora de provar la llibreria: la plantilla inicial ja compila correctament un projecte genèric i pots començar a treballar-hi de seguida. Els detalls de configuració són per més endavant, quan coneguis millor la llibreria o vulguis activar algun mòdul concret (que també trobaràs a la secció d’exemples). És com un sistema operatiu acabat d’instal·lar: pots fer-lo servir des del primer moment, i només quan ho necessites ajustes les opcions avançades.
 
 
@@ -167,10 +100,56 @@ Fins ara només hem presentat el que és la MSXgl, mirem-ho d'aplicar a un cas p
 
 Aquestes són les línies que s'han modificat:
 
+
+\begin{tcolorbox}[
+  enhanced,
+  sidebyside, sidebyside gap=8mm,
+  listing side text,      % code on the left, text on the right
+  listing options={language=C,numbers=left}
+]
+\begin{lstlisting}
+#define VDP_UNIT    VDP_UNIT_U8
+#define SCREEN_W    256
+#define SCREEN_H    256
+init_vdp();
+\end{lstlisting}
+\tcblower
+These four lines configure the video display processor (VDP)
+to use 8-bit units and set the screen resolution to 256×256
+before calling the initialization routine.
+\end{tcolorbox}
+
+\begin{minipage}[t]{0.45\textwidth}
+\begin{lstlisting}[language=C,numbers=left]
+#define VDP_UNIT    VDP_UNIT_U8
+#define SCREEN_W    256
+#define SCREEN_H    256
+init_vdp();
+\end{lstlisting}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.5\textwidth}
+These four lines configure the video display processor
+to use 8-bit units and set the screen resolution to 256×256
+before calling the initialization routine.
+\end{minipage}
+
+\begin{tcolorbox}[listing only,listing options={language=C}]
+\#define VDP\_UNIT    
+\#define SCREEN\_W    256
+\#define SCREEN\_H    256
+init\_vdp();
+\end{tcolorbox}
+
+\smallskip
+\textit{Explanation:} These four lines configure the VDP...
+
+
 \begin{lstlisting}[language=C]
 #define VDP_UNIT    VDP_UNIT_U8 
 \end{lstlisting}
 Els scrolls i les pantalles són de 256, no necessitem els X16
+
 
 \begin{lstlisting}[language=C]
 #define VDP_USE_MODE_G3 FALSE   // MSX2     Screen 4

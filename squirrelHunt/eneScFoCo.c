@@ -16,6 +16,8 @@ unsigned char map_tile_x; // Per indicar la rajola de dalt a l'esquerra. Potser 
 unsigned char map_tile_y;
 unsigned char x;
 unsigned char y;
+unsigned char x2; // Second player position
+unsigned char y2;
 
 typedef struct{
   char x; // Les posicions dins la càmera. S'inicialitzaran el primer cop que apareguin
@@ -139,6 +141,17 @@ static const unsigned char esquirol[] = {
   0b01110000,
   0b00000000,
   0b00000000  
+};
+
+static const unsigned char sprite2[] = {
+  0b00111000,
+  0b01000100,
+  0b00101000,
+  0b00010000,
+  0b00111000,
+  0b01111100,
+  0b01111110,
+  0b11111111
 };
 
 #define MAX_PLANS_SPRITE 30
@@ -336,6 +349,7 @@ void init_pantalla_joc() {
   VDP_SetSpriteFlag(VDP_SPRITE_SIZE_8 | VDP_SPRITE_SCALE_1);
   VDP_LoadSpritePattern(sprite, 0, 1);
   VDP_LoadSpritePattern(esquirol, 1, 1);
+  VDP_LoadSpritePattern(sprite2, 2, 1); // Second player sprite pattern
   // Resetegem la resta d'sprites, estaven tots a la línia 217 quan s'inicialitzava l'aplicació
   for(int k=1; k<32; k++){
     VDP_SetSpritePosition(k, 255, 255);
@@ -653,6 +667,47 @@ void moviment_esquerra(){
   }
 }
 
+// Second player movement functions (no scrolling)
+void moviment_amunt_p2(){
+  char temp_y = y2 - 1;
+  char temp_tile_esq = (x2 + (pos_scroll_x & 7)) >> 3;
+  char temp_tile_amunt = (temp_y + (pos_scroll_y & 7)) >> 3;
+  
+  if (esParet_amunt(temp_tile_esq, temp_tile_amunt) == 0) {
+    y2 = temp_y;
+  }
+}
+
+void moviment_avall_p2(){
+  char temp_y = y2 + 1;
+  char temp_tile_esq = (x2 + (pos_scroll_x & 7)) >> 3;
+  char temp_tile_amunt = (temp_y + (pos_scroll_y & 7)) >> 3;
+  
+  if (esParet_avall(temp_tile_esq, temp_tile_amunt) == 0) {
+    y2 = temp_y;
+  }
+}
+
+void moviment_dreta_p2(){
+  char temp_x = x2 + 1;
+  char temp_tile_esq = (temp_x + (pos_scroll_x & 7)) >> 3;
+  char temp_tile_amunt = (y2 + (pos_scroll_y & 7)) >> 3;
+  
+  if (esParet_dreta(temp_tile_esq, temp_tile_amunt) == 0) {
+    x2 = temp_x;
+  }
+}
+
+void moviment_esquerra_p2(){
+  char temp_x = x2 - 1;
+  char temp_tile_esq = (temp_x + (pos_scroll_x & 7)) >> 3;
+  char temp_tile_amunt = (y2 + (pos_scroll_y & 7)) >> 3;
+  
+  if (esParet_esquerra(temp_tile_esq, temp_tile_amunt) == 0) {
+    x2 = temp_x;
+  }
+}
+
 
 char tile_esq_esquirol;
 char tile_amunt_esquirol;
@@ -855,7 +910,7 @@ void moviment_sprite(){
         moviment_dreta();
       }
 
-      // Keyboard input
+      // Keyboard input for player 1
       u8 row8 = Keyboard_Read(8);
       debugar = row8;      
       if (IS_KEY_PRESSED(row8, KEY_UP)) {
@@ -872,7 +927,26 @@ void moviment_sprite(){
         moviment_dreta();
       }
 
+      // Keyboard input for player 2 (W,A,D,X)
+      u8 row5 = Keyboard_Read(5); // Row for W and X keys
+      u8 row1 = Keyboard_Read(2); // Row for A key  
+      u8 row2 = Keyboard_Read(3); // Row for D key
+      
+      if (IS_KEY_PRESSED(row5, KEY_W)) { // W key
+        moviment_amunt_p2();
+      }
+      if (IS_KEY_PRESSED(row5, KEY_X)  || IS_KEY_PRESSED(row2, KEY_S)) { // X key or S key
+        moviment_avall_p2();
+      }
+      if (IS_KEY_PRESSED(row1, KEY_A)) { // A key
+        moviment_esquerra_p2();
+      }
+      if (IS_KEY_PRESSED(row2, KEY_D)) { // D key
+        moviment_dreta_p2();
+      }
+
       VDP_SetSpritePosition(0, x, y+pos_scroll_y); // Sumem el pos_scroll_y, ja que hi ha un offset cada cop que fem scroll
+      VDP_SetSpritePosition(31, x2, y2+pos_scroll_y); // Second player sprite
 
       processar_moviment = 0;
 
@@ -910,7 +984,9 @@ void main() {
   Bios_SetHookCallback(H_TIMI, VDP_InterruptHandler);
   // Posem sprite al 50,50
   x=20; y=19;
+  x2=60; y2=50; // Second player starting position
   VDP_SetSprite(0, x, y, 0);
+  VDP_SetSprite(31, x2, y2, 2); // Second player sprite using pattern 2
   moviment_sprite();
   Bios_ClearHook(H_TIMI);
   VDP_EnableVBlank(FALSE);
