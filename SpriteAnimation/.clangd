@@ -1,0 +1,12 @@
+CompileFlags:
+  Add: [
+    -I/home/jepsuse/MSX/MSXgl/projects/learning-msxgl/SpriteAnimation/,
+    -I/home/jepsuse/MSX/MSXgl/engine/src,
+    -I/home/jepsuse/MSX/MSXgl/engine/content,
+    -I/home/jepsuse/MSX/MSXgl/tools,
+    -DMSX_VERSION=MSX_TR,
+    -DTARGET=TARGET_DOS2,
+    -DAPPSIGN
+  ]
+Diagnostics:
+  Suppress: ["clang-diagnostic-error"]
