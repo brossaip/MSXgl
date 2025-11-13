@@ -70,7 +70,7 @@
 // VRAM addressing unit
 // - VDP_VRAM_ADDR_14 ............. Use 14-bits 16K VRAM addressing for MSX1 (u16)
 // - VDP_VRAM_ADDR_17 ............. Use 17-bits 128K VRAM addressing for MSX2/2+/turbo R (u32)
-#define VDP_VRAM_ADDR				VDP_VRAM_ADDR_14
+#define VDP_VRAM_ADDR				VDP_VRAM_ADDR_17
 
 // VDP X/Y units
 // - VDP_UNIT_U8 .................. X and Y use 8-bits values
@@ -84,12 +84,12 @@
 #define VDP_USE_MODE_G1				TRUE	// MSX1		Screen 1
 #define VDP_USE_MODE_G2				TRUE	// MSX1		Screen 2
 #define VDP_USE_MODE_MC				TRUE	// MSX1		Screen 3
-#define VDP_USE_MODE_T2				FALSE	// MSX2		Screen 0 Width 80
+#define VDP_USE_MODE_T2				TRUE	// MSX2		Screen 0 Width 80
 #define VDP_USE_MODE_G3				FALSE	// MSX2		Screen 4
-#define VDP_USE_MODE_G4				FALSE	// MSX2		Screen 5
+#define VDP_USE_MODE_G4				TRUE	// MSX2		Screen 5
 #define VDP_USE_MODE_G5				FALSE	// MSX2		Screen 6
 #define VDP_USE_MODE_G6				FALSE	// MSX2		Screen 7
-#define VDP_USE_MODE_G7				FALSE	// MSX2/2+	Screen 8, 10, 11 & 12
+#define VDP_USE_MODE_G7				TRUE	// MSX2/2+	Screen 8, 10, 11 & 12
 
 #define VDP_USE_VRAM16K				TRUE	// Use 16K VRAM access functions on MSX2
 #define VDP_USE_SPRITE				TRUE	// Use sprite handling functions
@@ -103,7 +103,7 @@
 #define VDP_USE_DEFAULT_SETTINGS	TRUE	// Auto-initialization of common VDP feature
 #define VDP_USE_16X16_SPRITE		TRUE	// Use 16x16 sprites mode
 #define VDP_USE_RESTORE_S0			TRUE	// Do restore of status register pointer to S#0 (needed onlt for default BIOS ISR)
-#define VDP_USE_PALETTE16			FALSE	// Use 16 entries palette (use only 15 entries otherwise)
+#define VDP_USE_PALETTE16			TRUE	// Use 16 entries palette (use only 15 entries otherwise)
 
 // ISR protection while modifiying VDP registers
 // - VDP_ISR_SAFE_NONE ............ No ISR protection (for program not using VDP interruption)
@@ -148,8 +148,8 @@
 // Input module setting
 #define INPUT_USE_JOYSTICK			TRUE	// Add functions to handle joystick using I/O port
 #define INPUT_USE_KEYBOARD			TRUE	// Add functions to handle keyboard using I/O port
-#define INPUT_USE_MOUSE				TRUE	// Add support for Mouse handling functions
-#define INPUT_USE_DETECT			TRUE	// Add feature to detect device plugged in General purpose ports
+#define INPUT_USE_MOUSE				FALSE	// Add support for Mouse handling functions
+#define INPUT_USE_DETECT			FALSE	// Add feature to detect device plugged in General purpose ports
 #define INPUT_USE_ISR_PROTECTION	TRUE	// Disable interruptions while access PSG registers (needed if you use BIOS or access PSG in your own ISR)
 #define INPUT_JOY_UPDATE			FALSE	// Add function to update all joystick states at once
 #define INPUT_HOLD_SIGNAL			FALSE	// Determines whether functions that modify signals should keep the state of those they don't need to modify (which slows functions down a bit) 
@@ -172,7 +172,7 @@
 #define MEM_USE_VALIDATOR			FALSE	// Activate validator to handle invalide input value
 #define MEM_USE_FASTCOPY			FALSE	// Add support for fast-copy function (using unrolled-LDI loop)
 #define MEM_USE_FASTSET				FALSE	// Add support for fast-set function (using unrolled-LDI loop)
-#define MEM_USE_DYNAMIC				TRUE	// Add support for malloc style dynamic allocator
+#define MEM_USE_DYNAMIC				FALSE	// Add support for malloc style dynamic allocator
 #define MEM_USE_BUILTIN				TRUE	// Use SDCC built-in memcpy and memset function instead of MSXgl ones
 
 //-----------------------------------------------------------------------------
@@ -205,7 +205,7 @@
 
 // Print module setting
 #define PRINT_USE_TEXT				TRUE	// Allow use of Text font (T1-T2, G1-G3)
-#define PRINT_USE_BITMAP			FALSE	// Allow use of Bitmap font (G4-G7)
+#define PRINT_USE_BITMAP			TRUE	// Allow use of Bitmap font (G4-G7)
 #define PRINT_USE_VRAM				FALSE	// Allow use of VRAM stored font (G4-G7)
 #define PRINT_USE_SPRITE			FALSE	// Allow use of Sprite font (G3-G7)
 #define PRINT_USE_FX_SHADOW			FALSE	// [Bitmap] Allow use of text shadow
@@ -217,7 +217,7 @@
 #define PRINT_USE_FORMAT			TRUE	// Add printf type function
 #define PRINT_USE_32B				TRUE	// Allow to print 32-bits integers
 #define PRINT_SKIP_SPACE			FALSE	// Skill space character
-#define PRINT_COLOR_NUM				8		// 1 color per line
+#define PRINT_COLOR_NUM				12		// 1 color per line
 // Character width
 // - PRINT_WIDTH_1 (text mode)
 // - PRINT_WIDTH_6
@@ -260,8 +260,8 @@
 
 // Pawn setting
 #define PAWN_ID_PER_LAYER			FALSE	// Set sprite ID for each layer (otherwise set per pawn)
-#define PAWN_USE_RT_LOAD			FALSE	// Load sprite pattern data on the fly (real-time)
-#define PAWN_USE_SPRT_FX			FALSE	// Allow sprite effects (crop, flip, mask, rotate)
+#define PAWN_USE_RT_LOAD			TRUE	// Load sprite pattern data on the fly (real-time)
+#define PAWN_USE_SPRT_FX			TRUE	// Allow sprite effects (crop, flip, mask, rotate)
 #define PAWN_SPRITE_SIZE			16		// Sprite size mode (8 for 8x8 pixel mode, or 16 for 16x16)
 #define PAWN_BLEND_OFFSET			12		// Sprite pattern offset for blending mode
 #define PAWN_USE_PHYSICS			TRUE	// Add physics and collision features
@@ -288,19 +288,19 @@
 // - PAWN_BORDER_UP
 // - PAWN_BORDER_RIGHT
 // - PAWN_BORDER_LEFT
-#define PAWN_BORDER_EVENT			(PAWN_BORDER_DOWN|PAWN_BORDER_RIGHT)
-#define PAWN_BORDER_BLOCK			(PAWN_BORDER_UP|PAWN_BORDER_LEFT)
+#define PAWN_BORDER_EVENT			(PAWN_BORDER_UP|PAWN_BORDER_DOWN|PAWN_BORDER_LEFT|PAWN_BORDER_RIGHT)
+#define PAWN_BORDER_BLOCK			(PAWN_BORDER_UP|PAWN_BORDER_DOWN|PAWN_BORDER_LEFT|PAWN_BORDER_RIGHT)
 // Top/bottom border position (in pixel)
 #define PAWN_BORDER_MIN_Y			0		// High border Y coordinade
-#define PAWN_BORDER_MAX_Y			191		// Low border Y coordinate
+#define PAWN_BORDER_MAX_Y			211		// Low border Y coordinate
 #define PAWN_TILEMAP_WIDTH			32		// Width of the tiles map
-#define PAWN_TILEMAP_HEIGHT			24		// Height of the tiles map
+#define PAWN_TILEMAP_HEIGHT			27		// Height of the tiles map
 // Collision tilemap source
 // - PAWN_TILEMAP_SRC_AUTO ........ Backward compatibility option
 // - PAWN_TILEMAP_SRC_RAM ......... Tilemap located in a buffer in RAM (best for performance)
 // - PAWN_TILEMAP_SRC_VRAM ........ Tilemap located in VRAM (slow but don't need additionnal data)
 // - PAWN_TILEMAP_SRC_V9 .......... Tilemap located in V9990's VRAM
-#define PAWN_TILEMAP_SRC			PAWN_TILEMAP_SRC_VRAM
+#define PAWN_TILEMAP_SRC			PAWN_TILEMAP_SRC_RAM
 // Pawn's sprite mode
 // - PAWN_SPT_MODE_AUTO ........... Backward compatibility option
 // - PAWN_SPT_MODE_MSX1 ........... Sprite Mode 1 (MSX1 screens)
@@ -308,7 +308,7 @@
 // - PAWN_SPT_MODE_MSX12 .......... Sprite Mode 1 & 2 (MSX1 & MSX2 screens)
 // - PAWN_SPT_MODE_V9_P1 .......... V9990 sprite in P1 mode
 // - PAWN_SPT_MODE_V9_P2 .......... V9990 sprite in P2 mode
-#define PAWN_SPT_MODE				PAWN_SPT_MODE_MSX1
+#define PAWN_SPT_MODE				PAWN_SPT_MODE_MSX2
 
 //-----------------------------------------------------------------------------
 // GAME MENU MODULE
@@ -376,10 +376,10 @@
 // Allow scroll data looping (only for horizontal scrolling)
 #define SCROLL_WRAP					TRUE
 // Use screen position adjust register (allow per-pixel scrolling) [MSX2]
-#define SCROLL_ADJUST				FALSE	// Global ajustement
-#define SCROLL_ADJUST_SPLIT			FALSE	// Destination windows ajustement using screen split
+#define SCROLL_ADJUST				TRUE	// Global ajustement
+#define SCROLL_ADJUST_SPLIT			TRUE	// Destination windows ajustement using screen split
 // Use sprite mask (allow smooth per-pixel scrolling) [MSX2]
-#define SCROLL_MASK					FALSE	// Use sprite to mask
+#define SCROLL_MASK					TRUE	// Use sprite to mask
 #define SCROLL_MASK_ID				0		// First sprite ID to use
 #define SCROLL_MASK_COLOR			COLOR_BLACK // Must be the same than border color
 #define SCROLL_MASK_PATTERN			0		// Sprite pattern to use
@@ -478,7 +478,7 @@
 // Arkos Tracker options
 #define AKG_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
 #define AKG_SFX_STARTIDX			0		// Do SFX indexes start at 0 or 1? Default is 0 but Arkos Tracker use 1
-#define AKG_USE_EVENT				TRUE	// Support for event callback function
+#define AKG_USE_EVENT				FALSE	// Support for event callback function
 #define AKM_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
 #define AKM_SFX_STARTIDX			0		// Do SFX indexes start at 0 or 1? Default is 0 but Arkos Tracker use 1
 #define AKY_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
@@ -620,7 +620,7 @@
 // - DEBUG_EMULICIOUS ............. Debug features for Emulicious
 // - DEBUG_OPENMSX ................ Debug features for openMSX using 'debugdevice' extension
 // - DEBUG_OPENMSX_P .............. Debug features for openMSX using PVM script (tools/script/openMSX/debugger_pvm.tcl)
-#define DEBUG_TOOL					DEBUG_DISABLE
+#define DEBUG_TOOL					DEBUG_OPENMSX
 // Profiler options
 // - PROFILE_DISABLE .............. No profile tool
 // - PROFILE_OPENMSX_G ............ Profiler features for openMSX using Grauw script (tools/script/openMSX/profiler_grauw.tcl)
