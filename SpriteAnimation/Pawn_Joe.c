@@ -19,6 +19,11 @@
 // DEFINES
 //=============================================================================
 
+// Physics values
+#define FORCE		24
+#define GRAVITY		1
+#define GROUND		192
+
 // Library's logo
 #define MSX_GL "\x02\x03\x04\x05"
 
@@ -34,7 +39,10 @@ bool State_Pause();
 // Font
 #include "font/font_mgl_sample8.h"
 // Sprites data by GrafxKid (https://opengameart.org/content/super-random-sprites)
+#include "../../samples/content/data_bg.h"
 #include "../../samples/content/data_sprt_layer.h"
+// Sinus & cosinus table
+#include "mathtable/mt_trigo_64.inc"
 
 // Sign-of-life character animation data
 const c8 g_ChrAnim[] = { '|', '\\', '-', '/' };
@@ -100,51 +108,87 @@ const Pawn_Action g_AnimActions[] =
 // MEMORY DATA
 //=============================================================================
 
-bool g_GameExit = FALSE;			// Game exit flag
 Pawn g_PlayerPawn;					// Player's pawn data structure
 bool g_bFlicker = TRUE;				// Activate sprite colorflickering 
 bool g_bMoving = FALSE;				// Is player moving?
+bool g_bJumping = FALSE;			// Is player jumping?
+i8   g_VelocityY;					// Current player velocity
 u8   g_PrevRow8 = 0xFF;				// Previous keyboard 8th row value
 i8   g_DX = 0;						// Current X movement
 i8   g_DY = 0;						// Current Y movement
+u8   g_LastEvent = 0;				// Last triggered event
+u16  g_Level = 0;					// Current map level
 bool g_bEnable = TRUE;				// 
 
 //=============================================================================
 // FUNCTIONS
 //=============================================================================
 
-//-----------------------------------------------------------------------------
-// Set the current game state (simplified - does nothing)
-void Game_SetState(void* state)
+// Physics callback
+void PhysicsEvent(u8 event, u8 tile)
 {
-	// In the simplified version, we don't actually change states
-	state; // Suppress unused parameter warning
+	tile;
+	switch (event)
+	{
+	case PAWN_PHYSICS_BORDER_DOWN:
+	case PAWN_PHYSICS_BORDER_RIGHT:
+		g_LastEvent = event;
+		break;
+	
+	case PAWN_PHYSICS_COL_DOWN: // Handle downward collisions 
+		g_bJumping = FALSE;
+		break;
+	
+	case PAWN_PHYSICS_COL_UP: // Handle upward collisions
+		g_VelocityY = 0;
+		break;
+	
+	case PAWN_PHYSICS_FALL: // Handle falling
+		if (!g_bJumping)
+		{
+			g_bJumping = TRUE;
+			g_VelocityY = 0;
+		}
+		break;
+	};
+}
+
+// Collision callback
+bool PhysicsCollision(u8 tile)
+{
+	return (tile < 8);
 }
 
 //-----------------------------------------------------------------------------
-// Exit the game
-void Game_Exit()
+// Draw the current level
+void DrawLevel()
 {
-	g_GameExit = TRUE;
+	Print_SetPosition(25, 0);
+	Print_DrawInt(g_Level);
+
+	// Background
+	loop(i, 24-2)
+		VDP_FillVRAM((i == 12) ? 9 : (i < 12) ? 16 : 8, g_ScreenLayoutLow + (i+2) * 32, 0, 32);
+	// Ground
+	Math_SetRandomSeed16(g_Level);
+	loop(i, 8)
+	{
+		if (i == 7)
+			Math_SetRandomSeed16(g_Level + 1);
+		u8 y = Math_GetRandom16() & 0x07 ;
+		loop(j, y)
+		{
+			VDP_FillVRAM((j == (y - 1)) ? 1 : 3, g_ScreenLayoutLow + ((23 - j) * 32) + (i * 4), 0, 4);
+		}
+	}
+	// Plateforms
+	loop(i, 12)
+	{
+		u8 rnd = Math_GetRandom16();
+		VDP_FillVRAM(1, g_ScreenLayoutLow + ((rnd & 0x0F) + 2) * 32 + (rnd >> 3), 0, 2);
+	}	
 }
 
-//-----------------------------------------------------------------------------
-// Wait for VBlank (simplified version)
-void VDP_WaitVBlank()
-{
-	// Simple VBlank wait - halt until interrupt
-	__asm
-		halt
-	__endasm;
-}
-
-//-----------------------------------------------------------------------------
-// Update the current game state
-void Game_UpdateState()
-{
-	// Call the current state function (simplified version)
-	State_Game();
-}
 
 //-----------------------------------------------------------------------------
 // Initialize the game
@@ -154,9 +198,18 @@ bool State_Initialize()
 	VDP_EnableDisplay(FALSE);
 	VDP_SetColor(COLOR_BLACK);
 	
-	// Initialize text font
+	// Initialize pattern
+	VDP_FillVRAM(0x00, g_ScreenPatternLow, 0, 256*8); // Clear pattern
+	VDP_WriteVRAM(g_DataBackground, g_ScreenPatternLow, 0, 24*8);
 	Print_SetTextFont(g_Font_MGL_Sample8, 32);
 	Print_SetColor(0xF, 0x1);
+
+	// Initialize color
+	VDP_FillVRAM(0xF0, g_ScreenColorLow, 0, 32); // Clear color
+	VDP_Poke_16K(0xF7, g_ScreenColorLow + 0);
+	VDP_Poke_16K(0x54, g_ScreenColorLow + 1);
+	VDP_Poke_16K(0xF5, g_ScreenColorLow + 2);
+	VDP_Poke_16K(0x99, g_ScreenColorLow + 3);
 
 	// Initialize sprite
 	VDP_SetSpriteFlag(VDP_SPRITE_SIZE_16);
@@ -165,12 +218,19 @@ bool State_Initialize()
 
 	// Init player pawn
 	Pawn_Initialize(&g_PlayerPawn, g_SpriteLayers, numberof(g_SpriteLayers), 0, g_AnimActions);
-	Pawn_SetPosition(&g_PlayerPawn, 100, 60);
+	Pawn_SetPosition(&g_PlayerPawn, 16, 16);
 	Pawn_SetColorBlend(&g_PlayerPawn, g_bFlicker);
+	Pawn_InitializePhysics(&g_PlayerPawn, PhysicsEvent, PhysicsCollision, 16, 16);
 
 	// Initialize text
 	Print_SetPosition(0, 0);
-	Print_DrawText(MSX_GL " SPRITE ANIMATION DEMO - Use arrows to move, ESC to exit");
+	Print_DrawCharX(' ', 32);
+	Print_SetPosition(0, 0);
+	Print_DrawText(MSX_GL " GAME SAMPLE     Lvl");
+	Print_DrawLineH(0, 1, 32);
+
+	// Initialize layout
+	DrawLevel();
 
 	VDP_EnableDisplay(TRUE);
 
@@ -182,21 +242,46 @@ bool State_Initialize()
 // Update the gameplay
 bool State_Game()
 {
-	// Update player animation
+// VDP_SetColor(COLOR_DARK_GREEN);
+	// Update player animation & physics
 	u8 act = ACTION_IDLE;
-	if (g_bMoving)
+	if (g_bJumping && (g_VelocityY >= 0))
+		act = ACTION_JUMP;
+	else if (g_bJumping)
+		act = ACTION_FALL;
+	else if (g_bMoving)
 		act = ACTION_MOVE;
-	
 	Pawn_SetAction(&g_PlayerPawn, act);
 	Pawn_SetMovement(&g_PlayerPawn, g_DX, g_DY);
+// VDP_SetColor(COLOR_DARK_BLUE);
 	Pawn_Update(&g_PlayerPawn);
+// VDP_SetColor(COLOR_DARK_RED);
 	Pawn_Draw(&g_PlayerPawn);
+// VDP_SetColor(COLOR_BLACK);
 
 	// Character animation
 	Print_SetPosition(31, 0);
 	Print_DrawChar(g_ChrAnim[g_PlayerPawn.Counter & 0x03]);
 
-	// Handle input
+	// Background horizon blink
+	if (g_bFlicker)
+		VDP_FillVRAM(g_PlayerPawn.Counter & 1 ? 9 : 10, g_ScreenLayoutLow + (12+2) * 32, 0, 32);
+
+	// Handle collision events
+	switch (g_LastEvent)
+	{
+	case PAWN_PHYSICS_BORDER_DOWN:
+		// @todo: handle game over...
+		break;
+	case PAWN_PHYSICS_BORDER_RIGHT:
+		g_LastEvent = 0;
+		Pawn_SetPosition(&g_PlayerPawn, 0 + 4, g_PlayerPawn.PositionY);
+		g_Level++;
+		DrawLevel();
+		break;
+	}
+
+	// Update movement
 	g_DX = 0;
 	g_DY = 0;
 	u8 row8 = Keyboard_Read(8);
@@ -210,18 +295,23 @@ bool State_Game()
 		g_DX--;
 		g_bMoving = TRUE;
 	}
-	else if (IS_KEY_PRESSED(row8, KEY_UP))
-	{
-		g_DY--;
-		g_bMoving = TRUE;
-	}
-	else if (IS_KEY_PRESSED(row8, KEY_DOWN))
-	{
-		g_DY++;
-		g_bMoving = TRUE;
-	}
 	else
 		g_bMoving = FALSE;
+	
+	if (g_bJumping)
+	{
+		g_DY -= g_VelocityY / 4;
+		
+		g_VelocityY -= GRAVITY;
+		if (g_VelocityY < -FORCE)
+			g_VelocityY = -FORCE;
+
+	}
+	else if (IS_KEY_PRESSED(row8, KEY_SPACE) || IS_KEY_PRESSED(row8, KEY_UP))
+	{
+		g_bJumping = TRUE;
+		g_VelocityY = FORCE;
+	}
 
 	if (IS_KEY_PUSHED(row8, g_PrevRow8, KEY_HOME))
 	{
@@ -240,6 +330,7 @@ bool State_Game()
 	if (Keyboard_IsKeyPressed(KEY_ESC))
 		Game_Exit();
 
+		
 	return TRUE; // Frame finished
 }
 
@@ -259,15 +350,9 @@ bool State_Pause()
 void main()
 {
 	Bios_SetKeyClick(FALSE);
-	
-	State_Initialize();
-	
-	// Main game loop
-	while(!g_GameExit)
-	{
-		Game_UpdateState();
-		
-		// Wait for VBlank
-		VDP_WaitVBlank();
-	}
+
+	Game_SetState(State_Initialize);
+	Game_Start(VDP_MODE_GRAPHIC1, FALSE);
+
+	Bios_Exit(0);
 }

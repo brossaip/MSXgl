@@ -77,7 +77,7 @@
 // - VDP_UNIT_X16 ................. X use 16-bits and Y use 8-bits values
 // - VDP_UNIT_Y16 ................. X use 8-bits and Y use 16-bits values
 // - VDP_UNIT_U16 ................. X and Y use 16-bits values
-#define VDP_UNIT					VDP_UNIT_U8
+#define VDP_UNIT					VDP_UNIT_X16
 
 // VDP screen modes (additionnal limitations come from the selected MSX_VERSION)
 #define VDP_USE_MODE_T1				TRUE	// MSX1		Screen 0 Width 40
@@ -85,10 +85,10 @@
 #define VDP_USE_MODE_G2				TRUE	// MSX1		Screen 2
 #define VDP_USE_MODE_MC				TRUE	// MSX1		Screen 3
 #define VDP_USE_MODE_T2				TRUE	// MSX2		Screen 0 Width 80
-#define VDP_USE_MODE_G3				FALSE	// MSX2		Screen 4
+#define VDP_USE_MODE_G3				TRUE	// MSX2		Screen 4
 #define VDP_USE_MODE_G4				TRUE	// MSX2		Screen 5
-#define VDP_USE_MODE_G5				FALSE	// MSX2		Screen 6
-#define VDP_USE_MODE_G6				FALSE	// MSX2		Screen 7
+#define VDP_USE_MODE_G5				TRUE	// MSX2		Screen 6
+#define VDP_USE_MODE_G6				TRUE	// MSX2		Screen 7
 #define VDP_USE_MODE_G7				TRUE	// MSX2/2+	Screen 8, 10, 11 & 12
 
 #define VDP_USE_VRAM16K				TRUE	// Use 16K VRAM access functions on MSX2
@@ -148,8 +148,8 @@
 // Input module setting
 #define INPUT_USE_JOYSTICK			TRUE	// Add functions to handle joystick using I/O port
 #define INPUT_USE_KEYBOARD			TRUE	// Add functions to handle keyboard using I/O port
-#define INPUT_USE_MOUSE				FALSE	// Add support for Mouse handling functions
-#define INPUT_USE_DETECT			FALSE	// Add feature to detect device plugged in General purpose ports
+#define INPUT_USE_MOUSE				TRUE	// Add support for Mouse handling functions
+#define INPUT_USE_DETECT			TRUE	// Add feature to detect device plugged in General purpose ports
 #define INPUT_USE_ISR_PROTECTION	TRUE	// Disable interruptions while access PSG registers (needed if you use BIOS or access PSG in your own ISR)
 #define INPUT_JOY_UPDATE			FALSE	// Add function to update all joystick states at once
 #define INPUT_HOLD_SIGNAL			FALSE	// Determines whether functions that modify signals should keep the state of those they don't need to modify (which slows functions down a bit) 
@@ -172,7 +172,7 @@
 #define MEM_USE_VALIDATOR			FALSE	// Activate validator to handle invalide input value
 #define MEM_USE_FASTCOPY			FALSE	// Add support for fast-copy function (using unrolled-LDI loop)
 #define MEM_USE_FASTSET				FALSE	// Add support for fast-set function (using unrolled-LDI loop)
-#define MEM_USE_DYNAMIC				FALSE	// Add support for malloc style dynamic allocator
+#define MEM_USE_DYNAMIC				TRUE	// Add support for malloc style dynamic allocator
 #define MEM_USE_BUILTIN				TRUE	// Use SDCC built-in memcpy and memset function instead of MSXgl ones
 
 //-----------------------------------------------------------------------------
@@ -206,29 +206,29 @@
 // Print module setting
 #define PRINT_USE_TEXT				TRUE	// Allow use of Text font (T1-T2, G1-G3)
 #define PRINT_USE_BITMAP			TRUE	// Allow use of Bitmap font (G4-G7)
-#define PRINT_USE_VRAM				FALSE	// Allow use of VRAM stored font (G4-G7)
-#define PRINT_USE_SPRITE			FALSE	// Allow use of Sprite font (G3-G7)
-#define PRINT_USE_FX_SHADOW			FALSE	// [Bitmap] Allow use of text shadow
-#define PRINT_USE_FX_OUTLINE		FALSE	// [Bitmap] Allow use of text outline
+#define PRINT_USE_VRAM				TRUE	// Allow use of VRAM stored font (G4-G7)
+#define PRINT_USE_SPRITE			TRUE	// Allow use of Sprite font (G3-G7)
+#define PRINT_USE_FX_SHADOW			TRUE	// [Bitmap] Allow use of text shadow
+#define PRINT_USE_FX_OUTLINE		TRUE	// [Bitmap] Allow use of text outline
 #define PRINT_USE_2_PASS_FX			FALSE	// [Bitmap] Allow use 2-pass FX render to prevent character overlap
 #define PRINT_USE_GRAPH				TRUE	// Allow use of character lines and boxes
 #define PRINT_USE_VALIDATOR			TRUE	// Add validator character code
 #define PRINT_USE_UNIT				FALSE	// Display integer type (h: hexadecimal, b: binary)
 #define PRINT_USE_FORMAT			TRUE	// Add printf type function
 #define PRINT_USE_32B				TRUE	// Allow to print 32-bits integers
-#define PRINT_SKIP_SPACE			FALSE	// Skill space character
+#define PRINT_SKIP_SPACE			TRUE	// Skill space character
 #define PRINT_COLOR_NUM				12		// 1 color per line
 // Character width
 // - PRINT_WIDTH_1 (text mode)
 // - PRINT_WIDTH_6
 // - PRINT_WIDTH_8
 // - PRINT_WIDTH_X (variable)
-#define PRINT_WIDTH					PRINT_WIDTH_1
+#define PRINT_WIDTH					PRINT_WIDTH_X
 // Character height
 // - PRINT_HEIGHT_1 (text mode)
 // - PRINT_HEIGHT_8
 // - PRINT_HEIGHT_X (variable)
-#define PRINT_HEIGHT				PRINT_HEIGHT_1
+#define PRINT_HEIGHT				PRINT_HEIGHT_X
 
 //-----------------------------------------------------------------------------
 // SPRITE FX MODULE
@@ -260,8 +260,8 @@
 
 // Pawn setting
 #define PAWN_ID_PER_LAYER			FALSE	// Set sprite ID for each layer (otherwise set per pawn)
-#define PAWN_USE_RT_LOAD			TRUE	// Load sprite pattern data on the fly (real-time)
-#define PAWN_USE_SPRT_FX			TRUE	// Allow sprite effects (crop, flip, mask, rotate)
+#define PAWN_USE_RT_LOAD			FALSE	// Load sprite pattern data on the fly (real-time)
+#define PAWN_USE_SPRT_FX			FALSE	// Allow sprite effects (crop, flip, mask, rotate)
 #define PAWN_SPRITE_SIZE			16		// Sprite size mode (8 for 8x8 pixel mode, or 16 for 16x16)
 #define PAWN_BLEND_OFFSET			12		// Sprite pattern offset for blending mode
 #define PAWN_USE_PHYSICS			TRUE	// Add physics and collision features
@@ -316,9 +316,9 @@
 
 #define MENU_USE_DEFAULT_CALLBACK	TRUE	// Use default input/print callback
 #define MENU_SCREEN_WIDTH			MENU_VARIABLE		// Screen width
-#define MENU_FRAME_X				0		// Frame position X
+#define MENU_FRAME_X				4		// Frame position X
 #define MENU_FRAME_Y				6		// Frame position Y
-#define MENU_FRAME_WIDTH			32		// Frame width
+#define MENU_FRAME_WIDTH			26		// Frame width
 #define MENU_FRAME_HEIGHT			8		// Frame height
 #define MENU_CHAR_CLEAR				'\0'	// Clear character
 #define MENU_CHAR_CURSOR			'@'		// Cursor character
@@ -333,7 +333,7 @@
 #define MENU_ITEM_X_GOTO			6		// Goto type item label X position
 #define MENU_ITEM_ALIGN				MENU_ITEM_ALIGN_LEFT // Item label alignment
 #define MENU_ITEM_ALIGN_GOTO		MENU_ITEM_ALIGN_LEFT // Goto type item label alignment
-#define MENU_VALUE_X				14		// Item value X position
+#define MENU_VALUE_X				15		// Item value X position
 // Type of cursor
 // - MENU_CURSOR_MODE_NONE ........ No cursor
 // - MENU_CURSOR_MODE_CHAR ........ Character cursor
@@ -478,7 +478,7 @@
 // Arkos Tracker options
 #define AKG_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
 #define AKG_SFX_STARTIDX			0		// Do SFX indexes start at 0 or 1? Default is 0 but Arkos Tracker use 1
-#define AKG_USE_EVENT				FALSE	// Support for event callback function
+#define AKG_USE_EVENT				TRUE	// Support for event callback function
 #define AKM_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
 #define AKM_SFX_STARTIDX			0		// Do SFX indexes start at 0 or 1? Default is 0 but Arkos Tracker use 1
 #define AKY_BUFFER_ADDR				0xF000	// Replayer working area address in RAM
@@ -620,7 +620,7 @@
 // - DEBUG_EMULICIOUS ............. Debug features for Emulicious
 // - DEBUG_OPENMSX ................ Debug features for openMSX using 'debugdevice' extension
 // - DEBUG_OPENMSX_P .............. Debug features for openMSX using PVM script (tools/script/openMSX/debugger_pvm.tcl)
-#define DEBUG_TOOL					DEBUG_OPENMSX
+#define DEBUG_TOOL					DEBUG_DISABLE
 // Profiler options
 // - PROFILE_DISABLE .............. No profile tool
 // - PROFILE_OPENMSX_G ............ Profiler features for openMSX using Grauw script (tools/script/openMSX/profiler_grauw.tcl)

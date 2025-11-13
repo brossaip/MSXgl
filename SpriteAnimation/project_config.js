@@ -15,7 +15,7 @@
 // DoMake    = true;	//-- Link all the project and engine source code (boolean). Merge all REL into one IHX file
 // DoPackage = true;	//-- Generate final binary file (boolean). Binarize the IHX file
 // DoDeploy  = true;	//-- Gathering of all files necessary for the program to work (boolean). Depends on the type of target
-DoRun     = true;	//-- Start the program automatically at the end of the build (boolean)
+// DoRun     = false;	//-- Start the program automatically at the end of the build (boolean)
 
 //*****************************************************************************
 // TOOLS SETTINGS
@@ -30,7 +30,7 @@ DoRun     = true;	//-- Start the program automatically at the end of the build (
 // MSXDOS    = `${ToolsDir}build/DOS/`;			//-- Path to the MSX-DOS files (string)
 // DskTool   = `${ToolsDir}build/msxtar/msxtar`;	//-- Path to the tool to generate DSK file (string)
 // Emulator  = "";									//-- Path to the emulator to launch the project (string)
-Emulator  = '/home/jepsuse/MSX/openMSX/derived/openmsx';
+// Emulator  = `${ToolsDir}openMSX/openmsx`;
 // Emulator  = `${ToolsDir}Emulicious/Emulicious`;
 // Emulator  = `${ToolsDir}fMSX/fMSX`;
 // Emulator  = `${ToolsDir}MSXEC\\MSXEC`;
@@ -46,16 +46,19 @@ Emulator  = '/home/jepsuse/MSX/openMSX/derived/openmsx';
 ProjName = "Pawn_Joe";
 
 //-- List of project modules to build (array). If empty, ProjName will be added
-ProjModules = [ "Pawn_Joe" ];
+// ProjModules = [ ProjName ];
 
 //-- Project segments base name (string). ProjName will be used if not defined
 // ProjSegments = ProjName;
 
 //-- List of library modules to build (array)
-LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "dos", "string", "tool/reg", "game/pawn", "sprite_fx" ];
+LibModules = [ "system", "bios", "vdp", "print", "input", "memory", "math", "draw", "game/state", "game/pawn", "sprite_fx" ];
 
 //-- Additional sources to be compiled and linked with the project (array)
-AddSources = [];
+// AddSources = [];
+
+//-- Additional extern library to be linked with the project (array)
+// AddLibs = [];
 
 //-- Target MSX machine version (string)
 //   - 1        MSX1
@@ -68,7 +71,7 @@ AddSources = [];
 //   - 0        MSX0
 //   - TR       MSX turbo R
 //   - 3        MSX3 (reserved)
-Machine = "TR";
+Machine = "2";
 
 //-- Target program format (string)
 //   - BIN              .bin    BASIC binary program (starting at 8000h)
@@ -94,9 +97,11 @@ Machine = "TR";
 //   - ROM_KONAMI_SCC   .rom    Konami MegaROM SCC (aka Konami5): 8 KB segments for a total of 64 KB to 2 MB
 //   - ROM_NEO8         .rom    NEO-8: 8 KB segments for a total of 1 MB to 32 MB
 //   - ROM_NEO16        .rom    NEO-16: 16 KB segments for a total of 1 MB to 64 MB
-Target = "DOS2";
+//   - ROM_YAMANOOTO    .rom    Yamanooto: 8 KB segments for a total up to 8 MB
+//   - ROM_ASCII16X     .rom    ASCII16-X: 16 KB segments for a total up to 64 MB
+Target = "ROM_32K";
 
-//-- ROM mapper total size in KB (number). Must be a multiple of 8 or 16 depending on the mapper type (from 64 to 4096)
+//-- ROM mapper total size in KB (number). Must be a multiple of 8 or 16 depending on the mapper type (from 64 to 4096 for legacy mappers; can be up to 65536 for NEO-16 mapper)
 // ROMSize = 128;
 
 //-- Check for ROM boot skipping if a given key is pressed (boolean)
@@ -117,7 +122,7 @@ Target = "DOS2";
 // ROMDelayBoot = false;
 
 //-- Add a ROM signature to help flasher and emulator to detect the ROM type properly (boolean)
-// AddROMSignature = false;
+AddROMSignature = true;
 
 //-- Select RAM in slot 0 and install ISR and optional code there (string). For MSX with at least 64 KB of RAM
 //   - RAM0_NONE       Don't install anything in RAM 
@@ -142,17 +147,17 @@ Target = "DOS2";
 //-- Overwrite RAM starting address (number). For example. 0xE0000 for 8K RAM machine
 // ForceRamAddr = 0;
 
-//-- List of raw data files to be added to final binary (array). Each entry must be in the following format: { offset=0x0000, file="myfile.bin" }
+//-- List of raw data files to be added to final binary (array). Each entry must be in the following format: { offset:0x0000, file:"myfile.bin" }
 // RawFiles = [];
 
 //-- List of data files to copy to disk (array)
-DiskFiles = ['./content/img/PatCit.sc5', './content/img/PatCit.pl5'];
+// DiskFiles = [];
 
 //-- Size of the final disk (.DSK file). Can be "360K" or "720K" (string)
-DiskSize = "720K";
+// DiskSize = "720K";
 
 //-- Parse MSX-DOS command-line arguments
-DOSParseArg = false;
+// DOSParseArg = true;
 
 //*******************************************************************************
 // SIGNATURE SETTINGS
@@ -165,7 +170,7 @@ AppSignature = true;
 AppCompany = "GL";
 
 //-- Application ID. Can be 2 character string or 16-bits integer (0~65535)
-AppID = "T1";
+AppID = "XX";
 
 //-- Application extra data (array). Comma-separated bytes starting with data size
 // AppExtra = [];
@@ -175,13 +180,13 @@ AppID = "T1";
 //*******************************************************************************
 
 //-- Force to generate MSXgl static library even if 'msxgl.lib' already exist (boolean)
-BuildLibrary = false;
+// BuildLibrary = true;
 
 //-- Prepare program for debug (boolean)
-Debug = true;
+// Debug = false;
 
 //-- Move debug symbols to deployement folder (boolean)
-DebugSymbols = true;
+// DebugSymbols = true;
 
 //-- Allow compiler to generate undocumented Z80 instructions (boolean)
 // AllowUndocumented = false;
@@ -210,7 +215,7 @@ DebugSymbols = true;
 // CompileOpt = "";
 
 //-- Skip file if compile data (REL) is newer than the source code (boolean)
-CompileSkipOld = false;  // Per exemple, en passar a 16 colors no ho havia agafat bé.
+// CompileSkipOld = false;
 
 //-- Additionnal link options (string)
 // LinkOpt = "";
@@ -225,7 +230,7 @@ CompileSkipOld = false;  // Per exemple, en passar a 16 colors no ho havia agafa
 // HexBinOpt = "";
 
 //-- Generate Clang compatible Compilation database (boolean)
-GenCompileDB = true; // Anirà bé per trobar tots els includes en l'editor
+// GenCompileDB = false;
 
 //-- Command lines to be executed before the build process (array)
 // PreBuildScripts = [];
@@ -254,7 +259,7 @@ GenCompileDB = true; // Anirà bé per trobar tots els includes en l'editor
 //*****************************************************************************
 
 //-- Activate verbose mode and get more build information (boolean)
-Verbose = true;
+// Verbose = true;
 
 //-- Output build information to the standard console (boolean)
 // LogStdout = true;
@@ -305,7 +310,7 @@ Verbose = true;
 //-------------------------------------------------------------------------------
 // General options
 
-EmulMachine    = false;				//-- Force the MSX version of the emulated machine (boolean)
+// EmulMachine    = true;				//-- Force the MSX version of the emulated machine (boolean)
 // Emul60Hz       = false;				//-- Force the emulated machine to be at 60 Hz (boolean)
 // EmulFullScreen = false;				//-- Force the emulator to start in fullscreen mode (boolean)
 // EmulMute       = false;				//-- Disable emulator sound (boolean)
@@ -313,7 +318,7 @@ EmulMachine    = false;				//-- Force the MSX version of the emulated machine (b
 // EmulTurbo      = false;				//-- Start emulator in turbo mode (boolean)
 
 //-- Emulator extra parameters to be add to command-line (string). Emulator sotfware specific
-EmulExtraParam = "-machine Panasonic_FS-A1ST -ext moonsound";
+// EmulExtraParam = "";
 
 //-------------------------------------------------------------------------------
 // Extension options
@@ -324,6 +329,7 @@ EmulExtraParam = "-machine Panasonic_FS-A1ST -ext moonsound";
 // EmulOPL4     = false;				//-- Add OPL4 extension (boolean)
 // EmulPSG2     = false;				//-- Add second PSG extension (boolean)
 // EmulV9990    = false;				//-- Add V9990 video-chip extension (boolean)
+// EmulRAM      = false;				//-- Add mapped-RAM extension (boolean)
 
 //-------------------------------------------------------------------------------
 // Input options
